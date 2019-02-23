@@ -18,6 +18,12 @@ import YtvShare from "./aShare";
 import YtvVoice from "./addVoice";
 import VoiceImage1 from "./voiceImage";
 import CheckImages from "./checkImages";
+import VoiceVideo from "./voiceVideo";
+import TellOption from "./tellOption";
+import QuizResuts from "./quizResults";
+import AllComments from "./comments";
+import CommentReplies from "./commentReplies";
+import ImageGrid from "./imageGrid";
 
 const store = createStore(reducer, applyMiddleware(thunk));
 
@@ -70,6 +76,24 @@ const Articles = createStackNavigator(
     },
     VoiceImage: {
       screen: VoiceImage
+    },
+    VoiceVideo: {
+      screen: VoiceVideo
+    },
+    TellOption: {
+      screen: TellOption
+    },
+    QuizResuts: {
+      screen: QuizResuts
+    },
+    AllComments: {
+      screen: AllComments
+    },
+    CommentReplies: {
+      screen: CommentReplies
+    },
+    ImageGrid: {
+      screen: ImageGrid
     }
   },
   {

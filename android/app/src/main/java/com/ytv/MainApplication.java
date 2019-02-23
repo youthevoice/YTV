@@ -21,6 +21,11 @@ import cl.json.ShareApplication;
 import com.rnfs.RNFSPackage;
 import com.RNFetchBlob.RNFetchBlobPackage;
 import io.amarcruz.photoview.PhotoViewPackage;
+import com.brentvatne.react.ReactVideoPackage;
+import com.zmxv.RNSound.RNSoundPackage;
+import com.rnim.rn.audio.ReactNativeAudioPackage;
+import com.github.yamill.orientation.OrientationPackage;
+import com.BV.LinearGradient.LinearGradientPackage;
 
 import java.util.Arrays;
 import java.util.List;
@@ -49,7 +54,12 @@ public class MainApplication extends Application implements ReactApplication,   
       new RNSharePackage(),
               new RNFSPackage(),
               new RNFetchBlobPackage(),
-              new PhotoViewPackage()
+              new PhotoViewPackage(),
+              new ReactVideoPackage(),
+              new RNSoundPackage(),
+              new ReactNativeAudioPackage(),
+              new OrientationPackage(),
+              new LinearGradientPackage()
 
       );
     }

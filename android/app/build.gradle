@@ -153,6 +153,12 @@ dependencies {
     implementation project(':react-native-fs')
     implementation project(':rn-fetch-blob')
     implementation project(':react-native-photo-view-ex')
+    implementation project(':react-native-video')
+    implementation project(':react-native-sound')
+    implementation project(':react-native-audio')
+    implementation project(':react-native-orientation')
+    implementation project(':react-native-linear-gradient')
+
 
     implementation "com.google.android.gms:play-services-base:16.0.1"
     implementation "com.google.firebase:firebase-core:16.0.6"

@@ -1567,6 +1567,11 @@ data-urls@^1.0.0:
     whatwg-mimetype "^2.2.0"
     whatwg-url "^7.0.0"
 
+data.task@^3.1.2:
+  version "3.1.2"
+  resolved "https://registry.yarnpkg.com/data.task/-/data.task-3.1.2.tgz#f61511339ad5c5ac6f417cc2666b95153dc7448d"
+  integrity sha512-gGDjno8m/FS1kdMU3EmKcLaO1enFyfCV/EscvDZ4+KZDSg9xHePa2VFfWd+QO5PUp18NdCIziOpaSUE4Efw8/w==
+
 debug@2.6.9, debug@^2.1.2, debug@^2.2.0, debug@^2.3.3:
   version "2.6.9"
   resolved "https://registry.yarnpkg.com/debug/-/debug-2.6.9.tgz#5d128515df134ff327e90a4c93f4e077a536341f"
@@ -3345,6 +3350,11 @@ jsprim@^1.2.2:
     json-schema "0.2.3"
     verror "1.10.0"
 
+keymirror@^0.1.1:
+  version "0.1.1"
+  resolved "https://registry.yarnpkg.com/keymirror/-/keymirror-0.1.1.tgz#918889ea13f8d0a42e7c557250eee713adc95c35"
+  integrity sha1-kYiJ6hP40KQufFVyUO7nE63JXDU=
+
 kind-of@^1.1.0:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/kind-of/-/kind-of-1.1.0.tgz#140a3d2d41a36d2efcfa9377b62c24f8495a5c44"
@@ -3489,7 +3499,7 @@ lodash.throttle@^4.1.1:
   resolved "https://registry.yarnpkg.com/lodash.throttle/-/lodash.throttle-4.1.1.tgz#c23e91b710242ac70c37f1e1cda9274cc39bf2f4"
   integrity sha1-wj6RtxAkKscMN/HhzaknTMOb8vQ=
 
-lodash@^4.0.0, lodash@^4.17.10, lodash@^4.17.11, lodash@^4.17.4, lodash@^4.17.5, lodash@^4.3.0, lodash@^4.6.1:
+lodash@^4.0.0, lodash@^4.16.4, lodash@^4.17.10, lodash@^4.17.11, lodash@^4.17.4, lodash@^4.17.5, lodash@^4.3.0, lodash@^4.6.1:
   version "4.17.11"
   resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.11.tgz#b39ea6229ef607ecd89e2c8df12536891cac9b8d"
   integrity sha512-cQKh8igo5QUhZ7lg38DYWAxMvjSAKG0A8wGSVimP07SIUEK2UO+arSRKbRZWtelMtN5V0Hkwh5ryOto/SshYIg==
@@ -4676,6 +4686,11 @@ react-lifecycles-compat@^3.0.4:
   resolved "https://registry.yarnpkg.com/react-lifecycles-compat/-/react-lifecycles-compat-3.0.4.tgz#4f1a273afdfc8f3488a8c516bfda78f872352362"
   integrity sha512-fBASbA6LnOU9dOU2eW7aQ8xmYBSXUIWr+UmF9b1efZBazGNO+rcXT/icdKnYm2pTwcRylVUYwW7H1PHfLekVzA==
 
+react-native-audio@^4.3.0:
+  version "4.3.0"
+  resolved "https://registry.yarnpkg.com/react-native-audio/-/react-native-audio-4.3.0.tgz#fae22b81f6a4dda706fd4837d0c6a89c66cf2e7e"
+  integrity sha512-QQYq28eSJy+y/Ukvry0AkbwMVELAj+LcEwCVRH+7sKLqlnoBBxGd4ilhgJHjwOiC70192LueGbjXJjPPEwW3iA==
+
 react-native-elements@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/react-native-elements/-/react-native-elements-1.0.0.tgz#95bc194f61ec4658d8dbd977524f8c4fd3ada136"
@@ -4724,6 +4739,24 @@ react-native-image-picker@^0.28.0:
   resolved "https://registry.yarnpkg.com/react-native-image-picker/-/react-native-image-picker-0.28.0.tgz#e3f26df170ea932e9c0404624fbced2f59a300e3"
   integrity sha512-lQfdOyC1mQ/pvfEaUGdoodO1A1clg9kf6YC1WdbWhA6XK+joBd9GQYf8SaCf6/7vM25U4ib+6ux4yvnrS1pOqQ==
 
+react-native-linear-gradient@^2.5.3:
+  version "2.5.3"
+  resolved "https://registry.yarnpkg.com/react-native-linear-gradient/-/react-native-linear-gradient-2.5.3.tgz#d90cf19a13fcccfa8bb32025ac40a15ae1b49e99"
+  integrity sha512-XdusrOXXlkI+yQpUW7YLeiq9cZiBwkvQX4XEkHPVrJ9H47gsKmdgBwObkZBzBQUP0dKK/Sg6aVpETEis4w43bQ==
+
+react-native-masonry-list@^2.7.4:
+  version "2.7.4"
+  resolved "https://registry.yarnpkg.com/react-native-masonry-list/-/react-native-masonry-list-2.7.4.tgz#84bf79a020c2205ec197798f8ea9b372786d26e9"
+  integrity sha512-++gHJgjq9qs8fLiL2qv6P9DwX+gn8lvkRec9Cv+zT2XQS31eWHjqrVsD4aAXIsyIwsQo6BEYo6bLgcJyBh1JoA==
+  dependencies:
+    data.task "^3.1.2"
+    prop-types "^15.6.2"
+
+react-native-orientation@^3.1.3:
+  version "3.1.3"
+  resolved "https://registry.yarnpkg.com/react-native-orientation/-/react-native-orientation-3.1.3.tgz#d45803841fe94b6cce9acbe904fd5ca191a3711e"
+  integrity sha512-A0h0E+2f95X4avmhaBG1ZT8WDxBACA/q//JN2eF1E7kq8AJVxt5XDiavv+aSBkBlqFsfF3bIS+T/DB5mXmnxuA==
+
 react-native-photo-view-ex@^1.0.4:
   version "1.0.4"
   resolved "https://registry.yarnpkg.com/react-native-photo-view-ex/-/react-native-photo-view-ex-1.0.4.tgz#d5b26bea1b6d0627d244cce6784bf568de583fc7"
@@ -4766,6 +4799,11 @@ react-native-snackbar@^0.5.5:
   resolved "https://registry.yarnpkg.com/react-native-snackbar/-/react-native-snackbar-0.5.5.tgz#b481e8a37ef2c435acd54d37976705a23d3deeee"
   integrity sha512-P98ucpnjHtsPKqzYaQwL7yki+Lem63431Qa8+qyGgTb8mNzqKeiK6glMU+1lpgJr/eqgO+V0agtfb0CSSl0fWg==
 
+react-native-sound@^0.10.12:
+  version "0.10.12"
+  resolved "https://registry.yarnpkg.com/react-native-sound/-/react-native-sound-0.10.12.tgz#f912d6f9d6e9e2b42b391e0226787628d940f01a"
+  integrity sha512-lhvzZ+ekNSHW9s4FjmxxGAQmd7yDT9FnHgJNP824cMyHRrTES/LgHnSOxES/1FWVoaQ8FdfbEHkWd2rN0G/L9A==
+
 react-native-splash-screen@^3.2.0:
   version "3.2.0"
   resolved "https://registry.yarnpkg.com/react-native-splash-screen/-/react-native-splash-screen-3.2.0.tgz#d47ec8557b1ba988ee3ea98d01463081b60fff45"
@@ -4796,6 +4834,22 @@ react-native-vector-icons@^6.3.0:
     lodash "^4.0.0"
     prop-types "^15.6.2"
     yargs "^8.0.2"
+
+react-native-video-controls@^2.2.3:
+  version "2.2.3"
+  resolved "https://registry.yarnpkg.com/react-native-video-controls/-/react-native-video-controls-2.2.3.tgz#f0927e11aeb2cbbb03935e21bac0caa1d46d8a67"
+  integrity sha512-jC7wazPUx8TxZZAp52dOkHUOEGyUb294NI3PIZp+IjsaG1KYkZ84rxUBLMvGiTPno2Jxw19nl8cgQSv6sMGpPQ==
+  dependencies:
+    lodash "^4.16.4"
+
+react-native-video@^4.4.0:
+  version "4.4.0"
+  resolved "https://registry.yarnpkg.com/react-native-video/-/react-native-video-4.4.0.tgz#18012cb8ad90aac42be3d04c92430f820f3ab03b"
+  integrity sha512-QXdud1JII1tuTVeYAedWqRJnf8eDuY87ucSXdERuWQb9umuLVbkF1BcAckhiWf3/+R4YdKBFR0nY2n4o8e0qkg==
+  dependencies:
+    keymirror "^0.1.1"
+    prop-types "^15.5.10"
+    shaka-player "^2.4.4"
 
 react-native@0.58.5:
   version "0.58.5"
@@ -5350,6 +5404,11 @@ setprototypeof@1.1.0:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/setprototypeof/-/setprototypeof-1.1.0.tgz#d0bd85536887b6fe7c0d818cb962d9d91c54e656"
   integrity sha512-BvE/TwpZX4FXExxOxZyRGQQv651MSwmWKZGqvmPcRIjDqWub67kTKuIMx43cZZrS/cBBzwBcNDWoFxt2XEFIpQ==
+
+shaka-player@^2.4.4:
+  version "2.4.7"
+  resolved "https://registry.yarnpkg.com/shaka-player/-/shaka-player-2.4.7.tgz#8532e53ba7d8781b0785b552c7c68681c13c3206"
+  integrity sha512-KXYVB7snrrmcmDvusf2IIGOXZCvrlb6vXkl1q0pXP/QdUkvHm2SsW6jIXKvDz9xsvs9Pt/R7tm8POgfUOzybcQ==
 
 shebang-command@^1.2.0:
   version "1.2.0"
