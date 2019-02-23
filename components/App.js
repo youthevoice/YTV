@@ -1,15 +1,89 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- * @flow
- * @lint-ignore-every XPLATJSCOPYRIGHT1
- */
-
 import React, { Component } from "react";
 import { Platform, StyleSheet, Text, View } from "react-native";
 import SplashScreen from "react-native-splash-screen";
+import { createStore, applyMiddleware } from "redux";
+import thunk from "redux-thunk";
+import { Provider } from "react-redux";
+import reducer from "./store/reducer";
+import { createStackNavigator, createAppContainer } from "react-navigation";
+
+import AllArticles from "./allArticles";
+import DetailArticle from "./detailArticle";
+
+import ChooseLang from "./chooseLang";
+import YtvLogin from "./ytvLogin";
+import PLogin from "./phLogin";
+import GLogin from "./gfLogin";
+import YtvShare from "./aShare";
+import YtvVoice from "./addVoice";
+import VoiceImage1 from "./voiceImage";
+import CheckImages from "./checkImages";
+
+const store = createStore(reducer, applyMiddleware(thunk));
+
+console.log("store....", store);
+
+const VoiceImage = createStackNavigator(
+  {
+    VoiceImage: {
+      screen: VoiceImage1
+    },
+    CheckImages: {
+      screen: CheckImages
+    }
+  },
+
+  {
+    headerMode: "none"
+  },
+  {
+    initialRouteName: "VoiceImage1"
+  }
+);
+
+const Articles = createStackNavigator(
+  {
+    AllArticles: {
+      screen: AllArticles
+    },
+    DetailArticle: {
+      screen: DetailArticle,
+      path: "youthevoice.com/:articleId"
+    },
+    ChooseLang: {
+      screen: ChooseLang
+    },
+    YtvLogin: {
+      screen: YtvLogin
+    },
+    PLogin: {
+      screen: PLogin
+    },
+    GLogin: {
+      screen: GLogin
+    },
+    YtvShare: {
+      screen: YtvShare
+    },
+    YtvVoice: {
+      screen: YtvVoice
+    },
+    VoiceImage: {
+      screen: VoiceImage
+    }
+  },
+  {
+    headerMode: "none"
+  },
+  {
+    initialRouteName: "AllArticles"
+  }
+);
+const prefix = "https://";
+
+const AppContainer = createAppContainer(Articles);
+
+const MainApp = () => <AppContainer uriPrefix={prefix} />;
 
 export default class App extends Component {
   componentDidMount() {
@@ -18,28 +92,9 @@ export default class App extends Component {
 
   render() {
     return (
-      <View style={styles.container}>
-        <Text> Helloo !!!</Text>
-      </View>
+      <Provider store={store}>
+        <MainApp />
+      </Provider>
     );
   }
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#F5FCFF"
-  },
-  welcome: {
-    fontSize: 20,
-    textAlign: "center",
-    margin: 10
-  },
-  instructions: {
-    textAlign: "center",
-    color: "#333333",
-    marginBottom: 5
-  }
-});
