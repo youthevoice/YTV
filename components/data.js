@@ -1,36 +1,5 @@
 export const data = [
   {
-    uri:
-      "https://luehangs.site/pic-chat-app-images/beautiful-beautiful-woman-beauty-9763.jpg",
-    width: 1080,
-    height: 1920,
-    id: idGenerator(),
-    title: "www.luehangs.site"
-  },
-  {
-    source: {
-      uri:
-        "https://luehangs.site/pic-chat-app-images/animals-avian-beach-760984.jpg"
-    },
-    dimensions: { width: 1080, height: 1920 },
-    id: idGenerator(),
-    title: "www.luehangs.site"
-  },
-  {
-    uri:
-      "https://luehangs.site/pic-chat-app-images/beautiful-blond-blonde-hair-478544.jpg",
-    id: idGenerator(),
-    title: "www.luehangs.site"
-    // dimensions: { width: 1080, height: 1920 },
-  },
-  {
-    uri:
-      "https://luehangs.site/pic-chat-app-images/beautiful-beautiful-women-beauty-40901.jpg",
-    id: idGenerator(),
-    title: "www.luehangs.site"
-    // dimensions: { width: 1080, height: 1920 },
-  },
-  {
     url:
       "https://luehangs.site/pic-chat-app-images/beautiful-blond-fishnet-stockings-48134.jpg",
     id: idGenerator(),

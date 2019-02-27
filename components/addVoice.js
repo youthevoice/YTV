@@ -22,7 +22,15 @@ import Icon from "react-native-vector-icons/Ionicons";
 
 import { connect } from "react-redux";
 
+import { Divider } from "react-native-elements";
+
 class YtvVoice extends Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {};
+  }
+
   onShare() {
     let shareOptions = {
       url: "https://www.youtube.com/watch?v=GeyDf4ooPdo",
@@ -103,7 +111,7 @@ class YtvVoice extends Component {
 
   voiceVideo = (articleId, screenName) => () => {
     if (!this.props.isAuthenticated) {
-      this.props.navigation.navigate("VoiceVideo", {
+      this.props.navigation.navigate("YtvLogin", {
         screenName: "VoiceVideo"
       });
     } else {
@@ -116,7 +124,7 @@ class YtvVoice extends Component {
 
   allComments = () => {
     this.props.navigation.navigate("AllComments", {
-      datailData: ""
+      articleId: this.props.navigation.getParam("articleId", "")
     });
   };
 
@@ -130,174 +138,200 @@ class YtvVoice extends Component {
       <SafeAreaView style={styles.container}>
         <StatusBar barStyle="light-content" backgroundColor="#bf360c" />
         <ScrollView>
-          <View style={styles.headerBar}>
-            <TouchableOpacity onPress={() => this.props.navigation.goBack()}>
-              <View style={{ flexDirection: "row", alignItems: "center" }}>
-                <Icon name="ios-arrow-round-back" color="#fff" size={30} />
-                <Text style={styles.logo}>Back...</Text>
-              </View>
-            </TouchableOpacity>
-          </View>
-
-          <View
-            style={{
-              flexDirection: "row",
-              justifyContent: "center",
-              padding: 10
-            }}
-          >
+          <View>
             <TouchableOpacity
-              style={{ alignItems: "center" }}
-              onPress={this.allComments}
+              onPress={() => this.props.navigation.goBack()}
+              style={{ flexDirection: "row", alignItems: "center", zIndex: 1 }}
             >
-              <View style={{ flexDirection: "row", alignItems: "center" }}>
-                <Icon name="md-chatboxes" size={25} color="#bf360c" />
-                <Text
-                  style={{
-                    padding: 10,
-                    color: "#01579b",
-                    fontSize: 20,
-                    fontFamily: "Lobster-Regular"
-                  }}
-                >
-                  View All Voices
-                </Text>
-              </View>
-
-              <Text
-                style={{ paddingVertical: 5, fontSize: 14, color: "#1b5e20" }}
-              />
+              <Icon name="ios-arrow-round-back" color="green" size={30} />
+              <Text style={styles.logo}>Back...</Text>
             </TouchableOpacity>
           </View>
 
-          <View
+          <Image
             style={{
-              paddingHorizontal: 10,
-              paddingVertical: 20
+              height: 150,
+              width: null,
+              resizeMode: "contain",
+              alignItems: "center",
+              paddingTop: 50
             }}
-          >
-            <Text
+            source={require("./resources/ytvheader.png")}
+          />
+          <View style={styles.card}>
+            <View
               style={{
-                fontSize: 25,
-                fontFamily: "Lobster-Regular",
-                color: "#1b5e20"
+                flexDirection: "row",
+                justifyContent: "center",
+                padding: 10
               }}
             >
-              Please Add Your Voice...
-            </Text>
-          </View>
+              <TouchableOpacity
+                style={{ alignItems: "center" }}
+                onPress={this.allComments}
+              >
+                <View style={{ flexDirection: "row", alignItems: "center" }}>
+                  <Icon name="md-chatboxes" size={25} color="#bf360c" />
+                  <Text
+                    style={{
+                      padding: 10,
+                      color: "#01579b",
+                      fontSize: 20
+                      //  fontFamily: "Lobster-Regular"
+                    }}
+                  >
+                    View All Voices
+                  </Text>
+                </View>
+              </TouchableOpacity>
+            </View>
 
-          <View
-            style={{
-              flexDirection: "row",
-              justifyContent: "space-between",
-              paddingVertical: 40,
-              paddingHorizontal: 20
-            }}
-          >
-            <TouchableOpacity
-              style={styles.bottomBarItem}
-              onPress={this.voiceImage(articleId, screenName)}
+            <View
+              style={{
+                paddingHorizontal: 10,
+                paddingVertical: 10
+              }}
             >
-              <Fa5 name={"images"} size={40} color="#25D366" />
               <Text
                 style={{
-                  paddingVertical: 5,
-                  fontFamily: "Lobster-Regular",
-                  color: "#bf360c"
+                  fontSize: 20,
+                  //fontFamily: "Lobster-Regular",
+                  color: "#1b5e20"
                 }}
               >
-                {" "}
-                ImageVoice
+                Add Your Voice on YTV Apps
               </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.bottomBarItem}
-              onPress={this.voiceAudio(articleId, screenName)}
+            </View>
+            <View
+              style={{
+                flexDirection: "row",
+                justifyContent: "space-between",
+                paddingVertical: 20,
+                paddingHorizontal: 20
+              }}
             >
-              <Fa5 name={"headphones"} size={40} color="#3b5998" />
+              <TouchableOpacity
+                style={styles.bottomBarItem}
+                onPress={this.voiceImage(articleId, screenName)}
+              >
+                <Fa5 name={"images"} size={40} color="#25D366" />
+                <Text
+                  style={{
+                    paddingVertical: 5,
+                    fontFamily: "Lobster-Regular",
+                    color: "#bf360c"
+                  }}
+                >
+                  {" "}
+                  ImageVoice
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.bottomBarItem}
+                onPress={this.voiceAudio(articleId, screenName)}
+              >
+                <Fa5 name={"headphones"} size={40} color="#3b5998" />
+                <Text
+                  style={{
+                    paddingVertical: 5,
+                    fontFamily: "Lobster-Regular",
+                    color: "#bf360c"
+                  }}
+                >
+                  {" "}
+                  AudioVoice
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.bottomBarItem}
+                onPress={this.voiceVideo(articleId, screenName)}
+              >
+                <Fa5 name={"video"} size={40} color="#38A1F3" />
+                <Text
+                  style={{
+                    paddingVertical: 5,
+                    fontFamily: "Lobster-Regular",
+                    color: "#bf360c"
+                  }}
+                >
+                  VideoVoice
+                </Text>
+              </TouchableOpacity>
+            </View>
+
+            <View
+              style={{
+                paddingHorizontal: 10,
+                paddingVertical: 10
+              }}
+            >
               <Text
                 style={{
-                  paddingVertical: 5,
-                  fontFamily: "Lobster-Regular",
-                  color: "#bf360c"
+                  fontSize: 20,
+                  //fontFamily: "Lobster-Regular",
+                  color: "#1b5e20"
                 }}
               >
-                {" "}
-                AudioVoice
+                OR Add Voice on Social Media Apps
               </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.bottomBarItem}
-              onPress={this.voiceVideo(articleId, screenName)}
+            </View>
+
+            <View
+              style={{
+                flexDirection: "row",
+                justifyContent: "space-between",
+                padding: 20
+              }}
             >
-              <Fa5 name={"video"} size={40} color="#38A1F3" />
-              <Text
-                style={{
-                  paddingVertical: 5,
-                  fontFamily: "Lobster-Regular",
-                  color: "#bf360c"
-                }}
+              <TouchableOpacity
+                style={styles.bottomBarItem}
+                onPress={this.openFUrl("403845640359795")}
               >
-                VideoVoice
-              </Text>
-            </TouchableOpacity>
-          </View>
-          <View
-            style={{
-              flexDirection: "row",
-              justifyContent: "space-between",
-              padding: 20
-            }}
-          >
-            <TouchableOpacity
-              style={styles.bottomBarItem}
-              onPress={this.openFUrl("403845640359795")}
+                <Fa5 name={"facebook"} size={40} color="#3b5998" />
+                <Text style={{ paddingVertical: 5 }}> facebook</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.bottomBarItem}
+                onPress={this.openUrl(
+                  "https://twitter.com/ew8dotcom/status/1084291751374962689"
+                )}
+              >
+                <Fa5 name={"twitter"} size={40} color="#38A1F3" />
+                <Text style={{ paddingVertical: 5 }}> twitter</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.bottomBarItem}
+                onPress={this.openUrl(
+                  "https://www.reddit.com/r/assholedesign/comments/a02ezp/meta_is_it_asshole_design_a_handy_flowchart/"
+                )}
+              >
+                <Fa5 name={"reddit"} size={40} color="#FF4500" />
+                <Text style={{ paddingVertical: 5 }}> reddit</Text>
+              </TouchableOpacity>
+            </View>
+            <View
+              style={{
+                flexDirection: "row",
+                justifyContent: "space-between",
+                padding: 20
+              }}
             >
-              <Fa5 name={"facebook"} size={40} color="#3b5998" />
-              <Text style={{ paddingVertical: 5 }}> facebook</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.bottomBarItem}
-              onPress={this.openUrl(
-                "https://twitter.com/ew8dotcom/status/1084291751374962689"
-              )}
-            >
-              <Fa5 name={"twitter"} size={40} color="#38A1F3" />
-              <Text style={{ paddingVertical: 5 }}> twitter</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.bottomBarItem}
-              onPress={this.openUrl(
-                "https://www.reddit.com/r/assholedesign/comments/a02ezp/meta_is_it_asshole_design_a_handy_flowchart/"
-              )}
-            >
-              <Fa5 name={"reddit"} size={40} color="#FF4500" />
-              <Text style={{ paddingVertical: 5 }}> reddit</Text>
-            </TouchableOpacity>
-          </View>
-          <View
-            style={{
-              flexDirection: "row",
-              justifyContent: "space-between",
-              padding: 20
-            }}
-          >
-            <TouchableOpacity
-              style={styles.bottomBarItem}
-              onPress={() => this.onShare1()}
-            >
-              <Fa5 name={"youtube"} size={40} color="#c4302b" />
-              <Text style={{ paddingVertical: 5 }}> youtube</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.bottomBarItem}>
-              <Fa5 name={"instagram"} size={40} color="#3f729b" />
-              <Text style={{ paddingVertical: 5 }}> instagram</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.bottomBarItem}>
-              <Fa5 name={"quora"} size={40} color="#a62100" />
-              <Text style={{ paddingVertical: 5 }}> quora</Text>
-            </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.bottomBarItem}
+                onPress={() => this.onShare1()}
+              >
+                <Fa5 name={"youtube"} size={40} color="#c4302b" />
+                <Text style={{ paddingVertical: 5 }}> youtube</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.bottomBarItem}>
+                <Fa5 name={"instagram"} size={40} color="#3f729b" />
+                <Text style={{ paddingVertical: 5 }}> instagram</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.bottomBarItem}>
+                <Fa5 name={"quora"} size={40} color="#a62100" />
+                <Text style={{ paddingVertical: 5 }}> quora</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </ScrollView>
       </SafeAreaView>
@@ -317,7 +351,7 @@ export default connect(
 )(YtvVoice);
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#fff" },
+  container: { flex: 1, backgroundColor: "#000" },
   question: {
     padding: 10,
     fontSize: 20,

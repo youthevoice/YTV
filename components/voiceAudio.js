@@ -1,94 +1,172 @@
-import React from "react";
+import React, { Component } from "react";
+
 import {
+  AppRegistry,
   StyleSheet,
   Text,
   View,
-  TouchableOpacity,
-  NativeModules,
-  Dimensions,
-  SafeAreaView,
-  StatusBar,
+  TouchableHighlight,
   Platform,
   PermissionsAndroid,
-  Alert
+  SafeAreaView,
+  StatusBar,
+  TouchableOpacity,
+  ScrollView
 } from "react-native";
-import ImagePicker from "react-native-image-picker";
+
+import Sound from "react-native-sound";
 import axios from "axios";
-
+import { AudioRecorder, AudioUtils } from "react-native-audio";
+import { Input, Divider, Button as Button1 } from "react-native-elements";
 import Fa5 from "react-native-vector-icons/FontAwesome5";
-
 import Icon from "react-native-vector-icons/Ionicons";
 import { RectButton, BorderlessButton } from "react-native-gesture-handler";
-import {
-  Input,
-  Divider,
-  Button as Button1,
-  Image
-} from "react-native-elements";
 var RNFS = require("react-native-fs");
 import ProgressCircle from "react-native-progress-circle";
 import RNFetchBlob from "rn-fetch-blob";
 import { connect } from "react-redux";
 import UUIDGenerator from "react-native-uuid-generator";
 
-class VoiceVideo extends React.Component {
+class VoiceAudio extends Component {
   state = {
-    avatarSource: null,
-    videoSource: null,
-    vodeoSouceA: false,
-    imageData: [],
+    currentTime: 0.0,
+    recording: false,
+    paused: false,
+    stoppedRecording: false,
+    finished: false,
+    audioPath: RNFS.DocumentDirectoryPath + "/youthevoiceAudio.mp4",
+    hasPermission: undefined,
     isUploading: false,
+    audioPath: RNFS.DocumentDirectoryPath + "/youthevoicedotcom.mp4",
+    fileName: this.props.userId + "youthevoicedotcom.mp4",
+    onlyFileName: this.props.userId + "youthevoicedotcom",
     uploadStatus: 0,
-    uploadButton: false,
-    jobId: 0,
-    cameraDir: "",
-    commentText: ""
+    commentText: "",
+    recorded: false
   };
 
-  constructor(props) {
-    super(props);
+  prepareRecordingPath(audioPath) {
+    AudioRecorder.prepareRecordingAtPath(audioPath, {
+      SampleRate: 48000,
+      Channels: 1,
+      AudioQuality: "High",
+      AudioEncoding: "aac",
+      AudioEncodingBitRate: 32000
+    });
   }
 
   componentDidMount() {
-    this.setState({
-      articleId: this.props.navigation.getParam("articleId", ""),
-      screenName: this.props.navigation.getParam("screenName", "")
+    AudioRecorder.requestAuthorization().then(isAuthorised => {
+      this.setState({ hasPermission: isAuthorised });
+
+      if (!isAuthorised) return;
+
+      this.prepareRecordingPath(this.state.audioPath);
+
+      AudioRecorder.onProgress = data => {
+        this.setState({ currentTime: Math.floor(data.currentTime) });
+      };
+
+      AudioRecorder.onFinished = data => {
+        // Android callback comes in the form of a promise instead.
+        if (Platform.OS === "ios") {
+          this._finishRecording(
+            data.status === "OK",
+            data.audioFileURL,
+            data.audioFileSize
+          );
+        }
+      };
     });
   }
 
-  selectVideoTapped = () => {
-    const options = {
-      title: "Video Picker",
-      takePhotoButtonTitle: "Take Video...",
-      mediaType: "video",
-      videoQuality: "low"
+  async componentWillUnmount() {
+    if (this.state.recording) {
+      try {
+        const filePath = await AudioRecorder.stopRecording();
+      } catch (error) {
+        console.error(error);
+      }
+    }
+  }
+
+  _stop = async () => {
+    if (!this.state.recording) {
+      console.warn("Can't stop, not recording!");
+      return;
+    }
+
+    this.setState({ stoppedRecording: true, recording: false, paused: false });
+
+    try {
+      const filePath = await AudioRecorder.stopRecording();
+
+      if (Platform.OS === "android") {
+        this._finishRecording(true, filePath);
+      }
+      // this.setState({ stoppedRecording: true });
+      return filePath;
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  _record = async () => {
+    if (this.state.recording) {
+      console.warn("Already recording!");
+      return;
+    }
+
+    if (!this.state.hasPermission) {
+      console.warn("Can't record, no permission granted!");
+      return;
+    }
+
+    AudioRecorder.onProgress = data => {
+      this.setState({ currentTime: Math.floor(data.currentTime) });
     };
 
-    ImagePicker.showImagePicker(options, response => {
-      console.log("Response = ", response);
-      this.setState({ vodeoSouceA: false });
-      console.log("RNFetchBlob.fs.dirs.DCIMDir", RNFetchBlob.fs.dirs.DCIMDir);
+    if (this.state.stoppedRecording) {
+      this.prepareRecordingPath(this.state.audioPath);
+    }
 
-      if (response.didCancel) {
-        console.log("User cancelled photo picker");
-      } else if (response.error) {
-        console.log("ImagePicker Error: ", response.error);
-      } else if (response.customButton) {
-        console.log("User tapped custom button: ", response.customButton);
-      } else {
-        this.setState(
-          {
-            uploadButton: true,
-            vodeoSouceA: true,
+    this.setState({ recording: true, paused: false });
 
-            videoSource: response.path
-          },
-          () => {
-            console.log("statetttt", this.state);
-          }
-        );
-      }
+    try {
+      const filePath = await AudioRecorder.startRecording();
+      this.setState({ recorded: true });
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  _finishRecording(didSucceed, filePath, fileSize) {
+    this.setState({ finished: didSucceed });
+    console.log(
+      `Finished recording of duration ${
+        this.state.currentTime
+      } seconds at path: ${filePath} and size of ${fileSize || 0} bytes`
+    );
+  }
+
+  _playSound = () => {
+    this.props.navigation.navigate("PlaySound", {
+      sourceId: this.state.audioPath
     });
+  };
+
+  SecondsTohhmmss = totalSeconds => {
+    var hours = Math.floor(totalSeconds / 3600);
+    var minutes = Math.floor((totalSeconds - hours * 3600) / 60);
+    var seconds = totalSeconds - hours * 3600 - minutes * 60;
+
+    // round seconds
+    seconds = Math.round(seconds * 100) / 100;
+
+    var result = hours < 10 ? "0" + hours : hours;
+    result += ":" + (minutes < 10 ? "0" + minutes : minutes);
+    result += ":" + (seconds < 10 ? "0" + seconds : seconds);
+    return result;
   };
 
   _updateRNFB = async fileName => {
@@ -102,8 +180,12 @@ class VoiceVideo extends React.Component {
 
         if (granted === PermissionsAndroid.RESULTS.GRANTED) {
           console.log("upload started....");
-          this.setState({ isUploading: true, vodeoSouceA: false });
-          console.log(this.state.videoSource);
+          this.setState({ isUploading: true });
+          console.log(
+            this.state.audioPath,
+            this.state.onlyFileName,
+            this.state.fileName
+          );
           task = RNFetchBlob.fetch(
             "POST",
             "https://youthevoice.com/postcomment",
@@ -116,7 +198,7 @@ class VoiceVideo extends React.Component {
                 filename: fileName + ".mp4",
 
                 // upload a file from asset is also possible in version >= 0.6.2
-                data: RNFetchBlob.wrap(this.state.videoSource)
+                data: RNFetchBlob.wrap(this.state.audioPath)
               }
             ]
           );
@@ -175,21 +257,19 @@ class VoiceVideo extends React.Component {
 
   _submitTextAudio = (articleId, screenName) => async () => {
     _uuid = await UUIDGenerator.getRandomUUID();
-    console.log("satettt.......", this.state);
+    console.log(_uuid);
 
     axios
       .post("https://youthevoice.com/postTextAudioComment", {
-        voiceType: "Video",
+        voiceType: "Audio",
         commentId: _uuid,
         textComment: this.state.commentText,
         sourceId: _uuid,
-        screenName: "VoiceVideo",
+        screenName: "VoiceAudio",
         userId: this.props.userId,
         userName: this.props.sName,
-        articleId: this.state.articleId,
+        articleId: articleId,
         timeBeforeUpload: new Date(),
-        upVote: false,
-        dwVote: false,
         likeCnt: 0,
         dlikeCnt: 0
       })
@@ -202,12 +282,6 @@ class VoiceVideo extends React.Component {
       });
   };
 
-  pVideo = () => {
-    this.props.navigation.navigate("PlayVideo", {
-      sourceId: this.state.videoSource
-    });
-  };
-
   render() {
     const { navigation } = this.props;
     const articleId = navigation.getParam("articleId", "");
@@ -215,7 +289,8 @@ class VoiceVideo extends React.Component {
 
     return (
       <SafeAreaView style={styles.container}>
-        <StatusBar barStyle="lght-content" backgroundColor="#bf360c" />
+        <StatusBar barStyle="light-content" backgroundColor="#bf360c" />
+
         <View>
           <TouchableOpacity
             onPress={() => this.props.navigation.goBack()}
@@ -225,18 +300,76 @@ class VoiceVideo extends React.Component {
             <Text style={styles.logo}>Back...</Text>
           </TouchableOpacity>
         </View>
-        <View>
-          <Input
-            id="phonenumber"
-            label="Enter Your Voice..."
-            containerStyle={{ paddingHorizontal: 20, paddingVertical: 30 }}
-            // placeholder="YOUR VOICE..."
-            errorStyle={{ color: this.state.validPhone ? "green" : "red" }}
-            //errorMessage="ENTER YOUR VOICE"
-            multiline={true}
-            onChangeText={commentText => this.setState({ commentText })}
-          />
+        <ScrollView style={{ paddingTop: 20 }}>
           <View style={{ alignItems: "center", justifyContent: "center" }}>
+            <Button1
+              buttonStyle={styles.LoginButton}
+              type="outline"
+              icon={
+                <Fa5
+                  name="microphone-alt"
+                  size={15}
+                  // color="white"
+                  style={{ paddingRight: 5 }}
+                />
+              }
+              iconLeft
+              title=" Start Recording"
+              onPress={this._record}
+              loading={this.state.recording}
+              loadingProps={{ color: "#BF360C", size: "large" }}
+              disabled={this.state.recording || this.state.isUploading}
+            />
+            <Text style={styles.progressText}>
+              Time Recorded: {this.SecondsTohhmmss(this.state.currentTime)}
+            </Text>
+            <Button1
+              buttonStyle={styles.LoginButton}
+              type="outline"
+              icon={
+                <Fa5
+                  name="microphone-alt-slash"
+                  size={15}
+                  // color="white"
+                  style={{ paddingRight: 5 }}
+                />
+              }
+              iconLeft
+              title="Stop Recording"
+              onPress={this._stop}
+              // loading={this.state.stoppedRecording}
+              disabled={!this.state.recording}
+            />
+            <Button1
+              buttonStyle={styles.LoginButtonPlay}
+              type="outline"
+              icon={
+                <Fa5
+                  name="play"
+                  size={15}
+                  //  color="white"
+                  style={{ paddingRight: 5 }}
+                />
+              }
+              iconLeft
+              title="Play Recorded Voice"
+              onPress={this._playSound}
+              disabled={
+                this.state.recording ||
+                !this.state.recorded ||
+                this.state.isUploading
+              }
+            />
+            <Input
+              id="phonenumber"
+              label="Enter Your Voice..."
+              containerStyle={{ paddingHorizontal: 20, paddingVertical: 30 }}
+              // placeholder="YOUR VOICE..."
+              errorStyle={{ color: this.state.validPhone ? "green" : "red" }}
+              //errorMessage="ENTER YOUR VOICE"
+              multiline={true}
+              onChangeText={commentText => this.setState({ commentText })}
+            />
             {!this.state.isUploading ? (
               <Button1
                 buttonStyle={styles.LoginButtonUpload}
@@ -245,20 +378,20 @@ class VoiceVideo extends React.Component {
                   <Fa5
                     name="cloud-upload-alt"
                     size={15}
-                    //color="white"
+                    //  color="white"
                     style={{ paddingRight: 5 }}
                   />
                 }
                 iconLeft
-                title="Send Your Voice & Video"
+                title="Upload Your Voice"
                 onPress={this._submitTextAudio(articleId, screenName)}
-                disabled={!this.state.uploadButton}
+                disabled={this.state.recording || !this.state.recorded}
               />
             ) : (
               <View
                 style={{
                   flexDirection: "row",
-                  justifyContent: "space-between",
+                  justifyContent: "space-around",
                   padding: 10,
                   alignItems: "center"
                 }}
@@ -284,42 +417,8 @@ class VoiceVideo extends React.Component {
                 </ProgressCircle>
               </View>
             )}
-            <Button1
-              buttonStyle={styles.LoginButton}
-              type="outline"
-              icon={
-                <Fa5
-                  name="images"
-                  size={20}
-                  //color="white"
-                  style={{ paddingRight: 5 }}
-                />
-              }
-              iconLeft
-              title="Select/Record Video"
-              onPress={this.selectVideoTapped}
-              disabled={this.state.isUploading}
-            />
           </View>
-        </View>
-        <View style={{ alignItems: "center", justifyContent: "center" }}>
-          <Button1
-            buttonStyle={styles.LoginButton}
-            type="outline"
-            icon={
-              <Fa5
-                name="images"
-                size={20}
-                //color="white"
-                style={{ paddingRight: 5 }}
-              />
-            }
-            iconLeft
-            title="Play/Recorded Video"
-            onPress={this.pVideo}
-            disabled={!this.state.vodeoSouceA}
-          />
-        </View>
+        </ScrollView>
       </SafeAreaView>
     );
   }
@@ -338,7 +437,7 @@ const mapStateToProps = state => {
 export default connect(
   mapStateToProps,
   null
-)(VoiceVideo);
+)(VoiceAudio);
 
 var styles = StyleSheet.create({
   controls: {
@@ -349,8 +448,8 @@ var styles = StyleSheet.create({
   progressText: {
     paddingTop: 5,
     paddingBottom: 10,
-    fontSize: 20,
-    color: "#000"
+    fontSize: 20
+    // color: "#000"
   },
   button: {
     padding: 20
@@ -366,33 +465,26 @@ var styles = StyleSheet.create({
     fontSize: 20,
     color: "#B81F00"
   },
-  DelButton: {
-    //backgroundColor: "#D32F2F",
-    borderRadius: 50,
-    margin: 10,
-    height: 40,
-    width: 100
-  },
   LoginButton: {
-    //backgroundColor: "#4CAF50",
+    // backgroundColor: "#4CAF50",
     borderRadius: 50,
     margin: 10,
     height: 50,
-    width: 250
+    width: 200
   },
   LoginButtonPlay: {
-    //backgroundColor: "#9E9E9E",
+    // backgroundColor: "#9E9E9E",
     borderRadius: 50,
     margin: 10,
     height: 50,
     width: 200
   },
   LoginButtonUpload: {
-    //backgroundColor: "#FF9800",
+    // backgroundColor: "#FF9800",
     borderRadius: 50,
     margin: 10,
     height: 50,
-    width: 250
+    width: 200
   },
   container: {
     flex: 1,
@@ -408,7 +500,6 @@ var styles = StyleSheet.create({
     fontSize: 20,
     textAlign: "center"
   },
-  //container: { flex: 1, backgroundColor: "#e3f2fd" },
   container: { flex: 1, backgroundColor: "#fff" },
   question: {
     padding: 10,

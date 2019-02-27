@@ -1,0 +1,73 @@
+// Top Image and Bottom Text
+<View style={{ padding: 10 }}>
+  <View
+    style={{
+      flexDirection: "row",
+      justifyContent: "space-between",
+      padding: 10
+    }}
+  >
+    <TouchableOpacity style={styles.bottomBarItem}>
+      <View style={{ flexDirection: "row", alignItems: "center" }}>
+        <Button1
+          buttonStyle={styles.LoginButton}
+          icon={<Fa5 name="microphone-alt" size={15} color="white" />}
+          iconLeft
+          type={"clear"}
+        />
+      </View>
+      <Text style={{ padding: 10 }}>Audio Voice</Text>
+    </TouchableOpacity>
+    <TouchableOpacity style={styles.bottomBarItem}>
+      <View style={{ flexDirection: "row", alignItems: "center" }}>
+        <Button1
+          buttonStyle={styles.LoginButton}
+          icon={<Fa5 name="video" size={15} color="white" />}
+          iconLeft
+
+          //  onPress={this.verifyCode}
+          //loading={this.state.otpLoading}
+        />
+      </View>
+      <Text style={{ padding: 10 }}>Video Voice</Text>
+    </TouchableOpacity>
+    <TouchableOpacity style={styles.bottomBarItem}>
+      <View style={{ flexDirection: "row", alignItems: "center" }}>
+        <Button1
+          buttonStyle={styles.LoginButton}
+          icon={<Fa5 name="image" size={15} color="white" />}
+          iconLeft
+          disabled
+
+          //  onPress={this.verifyCode}
+          //loading={this.state.otpLoading}
+        />
+      </View>
+      <Text style={{ padding: 10 }}>Image Voice</Text>
+    </TouchableOpacity>
+  </View>
+</View>;
+
+
+{
+  uri:
+    "https://youthevoice.com/image-7b2fafcf-e3d7-4bd7-8959-e30c83443dea.jpg",
+
+  id: idGenerator(),
+  title: "www.luehangs.site"
+},
+
+{
+  uri:
+    "https://youthevoice.com/image-7b2fafcf-e3d7-4bd7-8959-e30c83443dea.jpg",
+  id: idGenerator(),
+  title: "www.luehangs.site"
+  // dimensions: { width: 1080, height: 1920 },
+},
+{
+  uri:
+    "https://youthevoice.com/image-7b2fafcf-e3d7-4bd7-8959-e30c83443dea.jpg",
+  id: idGenerator(),
+  title: "www.luehangs.site"
+  // dimensions: { width: 1080, height: 1920 },
+},

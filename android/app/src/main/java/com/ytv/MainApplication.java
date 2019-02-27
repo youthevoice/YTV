@@ -26,6 +26,7 @@ import com.zmxv.RNSound.RNSoundPackage;
 import com.rnim.rn.audio.ReactNativeAudioPackage;
 import com.github.yamill.orientation.OrientationPackage;
 import com.BV.LinearGradient.LinearGradientPackage;
+import io.github.traviskn.rnuuidgenerator.RNUUIDGeneratorPackage;
 
 import java.util.Arrays;
 import java.util.List;
@@ -59,7 +60,8 @@ public class MainApplication extends Application implements ReactApplication,   
               new RNSoundPackage(),
               new ReactNativeAudioPackage(),
               new OrientationPackage(),
-              new LinearGradientPackage()
+              new LinearGradientPackage(),
+              new RNUUIDGeneratorPackage()
 
       );
     }

@@ -16,36 +16,21 @@ import PLogin from "./phLogin";
 import GLogin from "./gfLogin";
 import YtvShare from "./aShare";
 import YtvVoice from "./addVoice";
-import VoiceImage1 from "./voiceImage";
+import VoiceImage from "./voiceImage";
 import CheckImages from "./checkImages";
 import VoiceVideo from "./voiceVideo";
+import VoiceAudio from "./voiceAudio";
 import TellOption from "./tellOption";
 import QuizResuts from "./quizResults";
 import AllComments from "./comments";
 import CommentReplies from "./commentReplies";
-import ImageGrid from "./imageGrid";
+import ImageGrid from "./imageList";
+import PlaySound from "./playSound";
+import PlayVideo from "./playVideo";
 
 const store = createStore(reducer, applyMiddleware(thunk));
 
 console.log("store....", store);
-
-const VoiceImage = createStackNavigator(
-  {
-    VoiceImage: {
-      screen: VoiceImage1
-    },
-    CheckImages: {
-      screen: CheckImages
-    }
-  },
-
-  {
-    headerMode: "none"
-  },
-  {
-    initialRouteName: "VoiceImage1"
-  }
-);
 
 const Articles = createStackNavigator(
   {
@@ -94,6 +79,21 @@ const Articles = createStackNavigator(
     },
     ImageGrid: {
       screen: ImageGrid
+    },
+    VoiceAudio: {
+      screen: VoiceAudio
+    },
+    PlaySound: {
+      screen: PlaySound
+    },
+    VoiceImage: {
+      screen: VoiceImage
+    },
+    CheckImages: {
+      screen: CheckImages
+    },
+    PlayVideo: {
+      screen: PlayVideo
     }
   },
   {

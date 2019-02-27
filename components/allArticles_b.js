@@ -26,7 +26,6 @@ import Loader from "./loader";
 
 import { connect } from "react-redux";
 import { fetchLoginDetails } from "./store/actions";
-const img_speaker = require("./resources/splash.png");
 
 class Articles extends React.Component {
   constructor(props) {
@@ -445,19 +444,15 @@ class Articles extends React.Component {
         <StatusBar barStyle="light-content" backgroundColor="#bf360c" />
         <View style={styles.body}>
           <View style={styles.headerBar}>
-            <View style={styles.headerBar2}>
-              <Image
-                style={{
-                  height: 53,
-                  width: 50,
-                  resizeMode: "contain",
-                  alignItems: "center",
-                  paddingTop: 50
-                }}
-                source={require("./resources/ytvheader.png")}
-              />
-
+            <View style={{ flexDirection: "row", alignItems: "center" }}>
               <Text style={styles.logo}>YouTheVoice</Text>
+            </View>
+            <View>
+              <BorderlessButton
+                onPress={() => this.props.navigation.navigate("ChooseLang")}
+              >
+                <Fa5 name="user-circle" color="#ffffff" size={20} />
+              </BorderlessButton>
             </View>
           </View>
           <Loader loading={this.state.loadL} />
@@ -472,6 +467,28 @@ class Articles extends React.Component {
               onEndReachedThreshold={0.1}
               onEndReached={this.loadMore}
             />
+          </View>
+        </View>
+
+        <View style={styles.bottomBar}>
+          <View style={styles.bottomBarItem}>
+            <BorderlessButton onPress={() => props.navigation.toggleDrawer()}>
+              <Icon name="ios-bulb" color="#bf360c" size={25} />
+            </BorderlessButton>
+            <Text style={styles.bottomBarTitle}> YourVoice</Text>
+          </View>
+          <View style={styles.bottomBarItem}>
+            <BorderlessButton onPress={() => props.navigation.toggleDrawer()}>
+              <Icon name="ios-appstore" color="#bf360c" size={25} />
+            </BorderlessButton>
+            <Text style={styles.bottomBarTitle}> Fights</Text>
+          </View>
+          <View style={styles.bottomBarItem}>
+            <BorderlessButton onPress={() => props.navigation.toggleDrawer()}>
+              <Icon name="ios-contact" color="#bf360c" size={25} />
+            </BorderlessButton>
+
+            <Text style={styles.bottomBarTitle}> MyNews</Text>
           </View>
         </View>
       </SafeAreaView>
@@ -495,7 +512,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#000"
   },
-  headerBar1: {
+  headerBar: {
     flexDirection: "row",
     height: 60,
     backgroundColor: "#1b5e20",
@@ -511,35 +528,17 @@ const styles = StyleSheet.create({
     shadowRadius: 1,
     shadowOpacity: 1.0
   },
-  headerBar: {
-    // flexDirection: "row",
-    height: 75,
-    backgroundColor: "#212121",
-    justifyContent: "center",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingTop: 10
-  },
-  headerBar2: {
-    flexDirection: "row",
-
-    justifyContent: "center",
-    // justifyContent: "space-around",
-    alignItems: "center"
-  },
   body: {
     flex: 1,
     backgroundColor: "#e1f5fe"
   },
   logo: {
-    fontSize: 23,
-    //fontFamily: "Lobster-Regular",
-    fontFamily: "OpenSans-SemiBold",
+    fontSize: 25,
+    fontFamily: "Lobster-Regular",
     // fontWeight: "bold",
     color: "#fff",
-    //paddingLeft: 5,
-    letterSpacing: 2,
-    paddingLeft: 10
+    paddingLeft: 5,
+    letterSpacing: 2
   },
   bottomBar: {
     flexDirection: "row",
@@ -571,7 +570,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1
   },
   cardHeader: {
-    fontSize: 18,
+    fontSize: 20,
     padding: 5,
     color: "#616161",
     fontFamily: "OpenSans-SemiBold"
@@ -582,10 +581,10 @@ const styles = StyleSheet.create({
     height: 100
   },
   cardText: {
-    fontSize: 16,
+    fontSize: 18,
     padding: 5,
     color: "#616161"
     //lineHeight: 1
   },
-  share: { padding: 5, color: "#388e3c", fontFamily: "OpenSans-SemiBold" }
+  share: { padding: 5, color: "#388e3c", fontFamily: "Lobster-Regular" }
 });

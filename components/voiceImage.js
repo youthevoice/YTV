@@ -19,7 +19,7 @@ import {
 } from "react-native";
 import ImagePicker from "react-native-image-picker";
 import axios from "axios";
-
+import UUIDGenerator from "react-native-uuid-generator";
 import Fa5 from "react-native-vector-icons/FontAwesome5";
 
 import Icon from "react-native-vector-icons/Ionicons";
@@ -34,7 +34,6 @@ var RNFS = require("react-native-fs");
 import ProgressCircle from "react-native-progress-circle";
 import RNFetchBlob from "rn-fetch-blob";
 import { connect } from "react-redux";
-import UUIDGenerator from "react-native-uuid-generator";
 
 class VoiceImage extends React.Component {
   state = {
@@ -56,6 +55,7 @@ class VoiceImage extends React.Component {
     const dirs = RNFetchBlob.fs.dirs;
     //  console.log("dcimmmm", dirs);
     this.setState({
+      voiceType: "Image",
       PictureDir: dirs.PictureDir,
       articleId: this.props.navigation.getParam("articleId", ""),
       screenName: this.props.navigation.getParam("screenName", "")
@@ -64,7 +64,7 @@ class VoiceImage extends React.Component {
 
   selectPhotoTapped = () => {
     const options = {
-      quality: 1.0,
+      quality: 0.5,
       maxWidth: 1080,
       maxHeight: 1350,
       storageOptions: {
@@ -87,7 +87,9 @@ class VoiceImage extends React.Component {
         let image = {
           name: response.fileName.replace(/(.*)\.(.*?)$/, "$1"),
           filename: response.fileName,
-          //filepath: response.path
+          imageW: response.width,
+          imageH: response.height,
+          sourceURI: response.uri,
           data: RNFetchBlob.wrap(response.path)
         };
         console.log("Response = ", response);
@@ -96,11 +98,9 @@ class VoiceImage extends React.Component {
         console.log("imagessss", image);
         console.log("Newwwimagessss", newImages);
 
-        // You can also display the image using data:
-        // let source = { uri: 'data:image/jpeg;base64,' + response.data };
-
         this.setState(
           {
+            sourceURI: response.uri,
             uploadButton: true,
             avatarSource: source,
             imageData: [...this.state.imageData, ...newImages]
@@ -112,40 +112,6 @@ class VoiceImage extends React.Component {
       }
     });
   };
-
-  selectVideoTapped() {
-    const options = {
-      title: "Video Picker",
-      takePhotoButtonTitle: "Take Video...",
-      mediaType: "video",
-      videoQuality: "low"
-    };
-
-    ImagePicker.showImagePicker(options, response => {
-      let images = {};
-      console.log("Response = ", response);
-      images.uri = response.uri;
-      console.log("jeeevnnnnnnn", images);
-
-      if (response.didCancel) {
-        console.log("User cancelled video picker");
-      } else if (response.error) {
-        console.log("ImagePicker Error: ", response.error);
-      } else if (response.customButton) {
-        console.log("User tapped custom button: ", response.customButton);
-      } else {
-        this.setState(
-          {
-            videoSource: response.uri,
-            imageData: [...this.state.imageData, ...response]
-          },
-          () => {
-            console.log("statetttt", this.state);
-          }
-        );
-      }
-    });
-  }
 
   _checkImages = imageUri => () => {
     this.props.navigation.navigate("CheckImages", {
@@ -167,18 +133,23 @@ class VoiceImage extends React.Component {
   };
 
   _submitTextAudio = (articleId, screenName) => async () => {
-    _uuid = await UUIDGenerator.getRandomUUID();
-    console.log(_uuid);
-
+    const iData = ([
+      { filename = null, imageH = null, imageW = null } = {}
+    ] = this.state.imageData);
+    console.log("iDAtaaaaa", iData);
     axios
       .post("https://youthevoice.com/postTextAudioComment", {
+        voiceType: "Image",
+        commentId: this.state.imageData[0].name,
         textComment: this.state.commentText,
-        audioId: _uuid,
+        sourceId: this.state.imageData,
+        screenName: "VoiceImage",
         userId: this.props.userId,
+        userName: this.props.sName,
         articleId: articleId,
         timeBeforeUpload: new Date(),
-        audioUpload: "",
-        timeAfterUpoad: ""
+        likeCnt: 0,
+        dlikeCnt: 0
       })
       .then(response => {
         // this.uploadFile();
@@ -207,9 +178,7 @@ class VoiceImage extends React.Component {
           this.setState({ isUploading: true });
           const dirs = RNFetchBlob.fs.dirs;
           console.log("dcimmmm", dirs);
-          p1 =
-            dirs.PictureDir + "/image-a5f98245-302b-415a-9331-6ef4cf1aef12.jpg";
-          console.log("p1 .....", p1);
+
           var files = this.state.imageData;
           task = RNFetchBlob.fetch(
             "POST",
@@ -293,68 +262,6 @@ class VoiceImage extends React.Component {
     //console.log("from fun", err + taskid);
   };
 
-  rnfsUploadCancel = async () => {
-    console.log("Cancellinggg   Uolod......", this.state.jobId);
-    //alert("in Cancelllll");
-    await RNFS.stopUpload(this.state.jobId);
-  };
-
-  uploadFile = async () => {
-    // alert("Helllloooooo");
-    var uploadUrl = "https://youthevoice.com/postcomment"; // For testing purposes, go to http://requestb.in/ and create your own link
-    // create an array of objects of the files you want to upload
-    this.setState({ isUploading: true });
-    var files = this.state.imageData;
-    console.log("in uploaaaddd", files);
-    var uploadBegin = response => {
-      // jobId = response.jobId;
-      this.setState({ jobId: response.jobId });
-      console.log("UPLOAD HAS BEGUN! JobId: " + this.state.jobId);
-    };
-
-    var uploadProgress = response => {
-      var percentage = Math.floor(
-        (response.totalBytesSent / response.totalBytesExpectedToSend) * 100
-      );
-      console.log("UPLOAD IS " + percentage + "% DONE!");
-      if (percentage % 50 == 0) {
-        this.setState({
-          uploadStatus: percentage
-        });
-      }
-    };
-    RNFS.uploadFiles({
-      toUrl: uploadUrl,
-      files: files,
-      method: "POST",
-      headers: {
-        Accept: "application/json"
-      },
-      fields: {
-        hello: "world"
-      },
-      begin: uploadBegin,
-      progress: uploadProgress
-    })
-      .promise.then(response => {
-        if (response.statusCode == 200) {
-          console.log("FILES UPLOADED!"); // response.statusCode, response.headers, response.body
-          this.setState({ isUploading: false });
-        } else {
-          this.setState({ isUploading: false });
-          console.log("SERVER ERROR");
-        }
-      })
-      .catch(err => {
-        if (err.description === "cancelled") {
-          // cancelled by user
-          console.log("User Cancellinggggggg");
-          this.setState({ isUploading: false });
-        }
-        console.log(err);
-      });
-  };
-
   render() {
     const { navigation } = this.props;
     const articleId = navigation.getParam("articleId", "");
@@ -368,24 +275,16 @@ class VoiceImage extends React.Component {
     let newHeight = originalHeight * widthChange;
     return (
       <SafeAreaView style={styles.container}>
-        <StatusBar barStyle="dark-content" backgroundColor="#bf360c" />
+        <StatusBar barStyle="light-content" backgroundColor="#bf360c" />
 
-        <View style={styles.headerBar}>
+        <View>
           <TouchableOpacity
-            onPress={() => this.props.navigation.navigate("YtvVoice")}
+            onPress={() => this.props.navigation.goBack()}
+            style={{ flexDirection: "row", alignItems: "center", zIndex: 1 }}
           >
-            <View style={{ flexDirection: "row", alignItems: "center" }}>
-              <Icon name="ios-arrow-round-back" color="#fff" size={30} />
-              <Text style={styles.logo}>Back...</Text>
-            </View>
+            <Icon name="ios-arrow-round-back" color="green" size={30} />
+            <Text style={styles.logo}>Back...</Text>
           </TouchableOpacity>
-          <View>
-            <BorderlessButton
-              onPress={() => this.props.navigation.toggleDrawer()}
-            >
-              <Icon name="ios-search" color="#ffffff" size={30} />
-            </BorderlessButton>
-          </View>
         </View>
         <View style={{ zIndex: 88 }}>
           <Input
@@ -414,7 +313,9 @@ class VoiceImage extends React.Component {
                 title="Send Your Voice & Images"
                 titleStyle={{ paddingLeft: 10 }}
                 onPress={this._submitTextAudio(articleId, screenName)}
-                disabled={!this.state.uploadButton}
+                disabled={
+                  !this.state.uploadButton && this.state.imageData.length == 0
+                }
               />
             ) : (
               <View
@@ -484,7 +385,8 @@ class VoiceImage extends React.Component {
                   containerStyle={{ padding: 5, borderRadius: 10 }}
                   resizeMode="contain"
                   source={{
-                    uri: "file://" + this.state.PictureDir + "/" + item.filename
+                    //  uri: "file://" + this.state.PictureDir + "/" + item.filename
+                    uri: item.sourceURI
                   }}
                   style={{ width: null, height: 200, padding: 10 }}
                   PlaceholderContent={<ActivityIndicator />}
@@ -524,7 +426,8 @@ class VoiceImage extends React.Component {
                     iconLeft
                     title="Check"
                     onPress={this._checkImages(
-                      "file://" + this.state.PictureDir + "/" + item.filename
+                      // "file://" + this.state.PictureDir + "/" + item.filename
+                      this.state.sourceURI
                     )}
                     disabled={this.state.isUploading}
                   />
@@ -682,7 +585,7 @@ var styles = StyleSheet.create({
   logo: {
     fontSize: 20,
     fontWeight: "bold",
-    color: "#fff",
+    color: "#1b5e20",
     paddingLeft: 5,
     letterSpacing: 2
   },

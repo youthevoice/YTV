@@ -14,6 +14,7 @@ import {
 
 //import images from "./imageBase64";
 import Icon from "react-native-vector-icons/Ionicons";
+import { Slider } from "react-native-elements";
 
 import axios from "axios";
 
@@ -26,7 +27,8 @@ export default class CheckImages extends Component {
       dotLoading: false,
       english: true,
       telugu: false,
-      renderI: false
+      renderI: false,
+      data: {}
     };
   }
 
@@ -35,26 +37,23 @@ export default class CheckImages extends Component {
   }
 
   _getQuizResults = () => {
-    // this.setState({ loading: true });
-
-    const data = { jeevan: "abbbb11" };
-    url = "https://youthevoice.com/getquizdetails";
-    const options = {
-      method: "GET",
-      headers: { "content-type": "application/x-www-form-urlencoded" },
-      data: qs.stringify(data),
-      url
-    };
-    axios(options)
-      .then(res => {
-        console.log(res.data);
-        this.setState({
-          detailData: res.data,
-          loading: false
-        });
+    fetch("https://youthevoice.com/getquizdetails/", {
+      method: "POST",
+      headers: {
+        Accept: "application/json, text/plain, */*",
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        quizId: "11"
+      })
+    })
+      .then(response => response.json())
+      .then(responseJson => {
+        console.log("responseJson.data", responseJson.data);
+        this.setState({ data: responseJson.data, renderI: true });
       })
       .catch(error => {
-        this.setState({ error, loading: false });
+        console.error(error);
       });
   };
 
@@ -63,7 +62,7 @@ export default class CheckImages extends Component {
 
     return (
       <SafeAreaView style={styles.container}>
-        <StatusBar barStyle="dark-content" backgroundColor="#bf360c" />
+        <StatusBar barStyle="light-content" backgroundColor="#bf360c" />
 
         <View>
           <TouchableOpacity
@@ -93,14 +92,23 @@ export default class CheckImages extends Component {
           </View>
           {this.state.renderI && (
             <View>
-              {quizResults.options.map((data, i) => (
+              {this.state.data.options.map((ops, i) => (
                 <View key={i} style={{ padding: 10 }}>
-                  <Text> {data.option}</Text>
                   <Text>
-                    {quizResults.totalVotes > 0
-                      ? Math.round((data.votes / quizResults.totalVotes) * 100)
+                    {this.state.data.totalVotes > 0
+                      ? Math.round(
+                          (ops.voices / this.state.data.totalVotes) * 100
+                        )
                       : 0}
                   </Text>
+                  <Slider
+                    value={
+                      this.state.data.totalVotes > 0
+                        ? ops.voices / this.state.data.totalVotes
+                        : 0
+                    }
+                  />
+                  <Text> {ops.option}</Text>
                 </View>
               ))}
             </View>

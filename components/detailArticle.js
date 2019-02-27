@@ -13,10 +13,12 @@ import {
   ScrollView,
   Linking,
   AlertIOS,
-  AsyncStorage
+  AsyncStorage,
+  Dimensions
 } from "react-native";
 
 import Icon from "react-native-vector-icons/Ionicons";
+import HTML from "react-native-render-html";
 
 import axios from "axios";
 import { RectButton, BorderlessButton } from "react-native-gesture-handler";
@@ -41,7 +43,7 @@ class DetailArticle extends Component {
       upVoteColor: "#9e9e9e",
       dwVoteColor: "#9e9e9e",
       loadL: false,
-      articleData: "",
+      articleData: {},
       renderI: false,
 
       upVoteTrueColor: "#42a5f5",
@@ -65,7 +67,7 @@ class DetailArticle extends Component {
 
     axios.all([this._getArticle(), this._getUserLike()]).then(
       axios.spread((articles, likes) => {
-        // console.log("likessssss", likes.dwVote, likes.data.dwVote);
+        console.log("likessssss", articles.data);
 
         this.setState({
           loadL: false,
@@ -196,7 +198,7 @@ class DetailArticle extends Component {
             fontSize: 16
           }}
         >
-          {JSON.stringify(data.option)}
+          {data.option}
         </Text>
       </TouchableOpacity>
     );
@@ -349,42 +351,39 @@ class DetailArticle extends Component {
     return (
       <SafeAreaView style={styles.container}>
         <StatusBar barStyle="light-content" backgroundColor="#bf360c" />
-        <View style={styles.headerBar}>
-          <TouchableOpacity onPress={() => this.props.navigation.goBack()}>
-            <View style={{ flexDirection: "row", alignItems: "center" }}>
-              <Icon name="ios-arrow-round-back" color="#fff" size={30} />
-              <Text style={styles.logo}>Back...</Text>
-            </View>
+        <View>
+          <TouchableOpacity
+            onPress={() => this.props.navigation.goBack()}
+            style={{ flexDirection: "row", alignItems: "center", zIndex: 1 }}
+          >
+            <Icon name="ios-arrow-round-back" color="green" size={30} />
+            <Text style={styles.logo}>Back...</Text>
           </TouchableOpacity>
-          <View>
-            <BorderlessButton
-              onPress={() => this.props.navigation.toggleDrawer()}
-            >
-              <Icon name="ios-search" color="#ffffff" size={30} />
-            </BorderlessButton>
-          </View>
         </View>
         <Loader loading={this.state.loadL} />
         {this.state.renderI && (
           <ScrollView>
             <View>
               <View style={styles.card}>
-                <Text style={styles.cardHeader}>
-                  {JSON.stringify(detailData.articleHeading)}
+                <Text style={styles.cardHHeader}>
+                  {detailData.articleHeading}
                 </Text>
 
                 <Image
                   source={{ uri: detailData.articleImage }}
                   style={styles.cardImage}
                 />
-                <Text style={styles.cardText}>
-                  {JSON.stringify(detailData.articleShortDesc)}
-                </Text>
+
+                <HTML
+                  html={detailData.articleLongDesc}
+                  imagesMaxWidth={Dimensions.get("window").width}
+                  baseFontStyle={{ fontSize: 16 }}
+                />
 
                 <View
                   style={{
                     flexDirection: "row",
-                    justifyContent: "space-between",
+                    justifyContent: "space-around",
                     padding: 10
                   }}
                 >
@@ -422,10 +421,6 @@ class DetailArticle extends Component {
                     <Icon name="md-share-alt" size={30} />
                     <Text style={{ paddingVertical: 5 }}> 20k</Text>
                   </TouchableOpacity>
-                  <TouchableOpacity>
-                    <Icon name="md-chatboxes" size={30} />
-                    <Text style={{ paddingVertical: 5 }}> 20k</Text>
-                  </TouchableOpacity>
                 </View>
               </View>
 
@@ -435,20 +430,14 @@ class DetailArticle extends Component {
                 <View
                   style={{
                     flexDirection: "row",
-                    justifyContent: "space-between",
+                    justifyContent: "space-around",
                     padding: 10
                   }}
                 >
                   <TouchableOpacity onPress={this.pVideo}>
                     <View style={styles.bottomBarItem}>
                       <Icon name="ios-videocam" size={30} />
-                      <Text style={{ paddingVertical: 5 }}> 480P</Text>
-                    </View>
-                  </TouchableOpacity>
-                  <TouchableOpacity onPress={this.commentVideo}>
-                    <View style={styles.bottomBarItem}>
-                      <Icon name="ios-videocam" size={30} />
-                      <Text style={{ paddingVertical: 5 }}> 720P</Text>
+                      <Text style={{ paddingVertical: 5 }}> Video</Text>
                     </View>
                   </TouchableOpacity>
 
@@ -462,8 +451,8 @@ class DetailArticle extends Component {
                     }
                   >
                     <View style={styles.bottomBarItem}>
-                      <Icon name="logo-facebook" size={30} />
-                      <Text style={{ paddingVertical: 5 }}> Facebook</Text>
+                      <Icon name="md-images" size={30} />
+                      <Text style={{ paddingVertical: 5 }}> Images</Text>
                     </View>
                   </TouchableOpacity>
 
@@ -480,15 +469,15 @@ class DetailArticle extends Component {
                 </View>
               </View>
 
-              <View style={styles.card}>
-                <Text style={styles.cardHeader}>
-                  Add Your Voice as Comment on any of below Social Media ...
+              <View style={styles.ytvcard}>
+                <Text style={styles.ytvcardHeader}>
+                  Add Your Voice - Comment
                 </Text>
 
                 <View
                   style={{
                     flexDirection: "row",
-                    justifyContent: "space-between",
+                    justifyContent: "space-around",
                     padding: 10
                   }}
                 >
@@ -501,8 +490,20 @@ class DetailArticle extends Component {
                     }
                   >
                     <View style={styles.bottomBarItem}>
-                      <Icon name="md-megaphone" size={30} />
-                      <Text style={{ paddingVertical: 5 }}> YTV VOICE</Text>
+                      <Image
+                        style={{
+                          height: 53,
+                          width: 50,
+                          resizeMode: "contain",
+                          alignItems: "center",
+                          paddingTop: 50
+                        }}
+                        source={require("./resources/ytvheader.png")}
+                      />
+                      <Text style={{ paddingVertical: 5, color: "#fff" }}>
+                        {" "}
+                        YTV Voice
+                      </Text>
                     </View>
                   </TouchableOpacity>
                   <TouchableOpacity
@@ -511,30 +512,11 @@ class DetailArticle extends Component {
                     )}
                   >
                     <View style={styles.bottomBarItem}>
-                      <Icon name="logo-twitter" size={30} />
-                      <Text style={{ paddingVertical: 5 }}> TWITTER</Text>
-                    </View>
-                  </TouchableOpacity>
-
-                  <TouchableOpacity
-                    onPress={this.openUrl(
-                      "https://www.facebook.com/jeevan.examwarrior/posts/403845640359795"
-                    )}
-                  >
-                    <View style={styles.bottomBarItem}>
-                      <Icon name="logo-facebook" size={30} />
-                      <Text style={{ paddingVertical: 5 }}> FACEBOOK</Text>
-                    </View>
-                  </TouchableOpacity>
-
-                  <TouchableOpacity
-                    onPress={this.openYUrl(
-                      "https://www.youtube.com/watch?v=AEr7NcU8cHw"
-                    )}
-                  >
-                    <View style={styles.bottomBarItem}>
-                      <Icon name="logo-youtube" size={30} />
-                      <Text style={{ paddingVertical: 5 }}> YOUTUBE</Text>
+                      <Icon name="md-wifi" size={50} color="#fff" />
+                      <Text style={{ paddingVertical: 5, color: "#fff" }}>
+                        {" "}
+                        Social Media
+                      </Text>
                     </View>
                   </TouchableOpacity>
                 </View>
@@ -542,9 +524,7 @@ class DetailArticle extends Component {
               {detailData.quiz.map((_quiz, j) => (
                 <View key={j} style={styles.card}>
                   <Text style={styles.cardHeader}>Add Your Voice Quiz</Text>
-                  <Text style={styles.question}>
-                    {JSON.stringify(_quiz.question)}
-                  </Text>
+                  <Text style={styles.question}>{_quiz.question}</Text>
 
                   <View key={j}>
                     {_quiz.options.map((data, i) => (
@@ -665,15 +645,36 @@ const styles = StyleSheet.create({
     elevation: 3,
     marginVertical: 2
   },
+  ytvcard: {
+    backgroundColor: "#212121",
+    elevation: 3,
+    marginVertical: 2
+  },
   cardseparator: {
     borderBottomColor: "#d1d0d4",
     borderBottomWidth: 1
+  },
+  cardHHeader: {
+    fontSize: 20,
+    padding: 5,
+    color: "#01579B",
+    // fontWeight: "bold",
+    //fontFamily: "Lobster-Regular"
+    fontFamily: "OpenSans-SemiBold"
   },
   cardHeader: {
     fontSize: 18,
     padding: 5,
     color: "#bf360c",
-    fontWeight: "bold"
+    // fontWeight: "bold",
+    fontFamily: "Lobster-Regular"
+  },
+  ytvcardHeader: {
+    fontSize: 18,
+    padding: 5,
+    color: "#bf360c",
+    // fontWeight: "bold",
+    fontFamily: "Lobster-Regular"
   },
   cardImage: {
     width: null,
@@ -702,8 +703,8 @@ const styles = StyleSheet.create({
   logo: {
     fontSize: 20,
     fontWeight: "bold",
-    color: "#fff",
-    paddingLeft: 5,
+    color: "#212121",
+    padding: 5,
     letterSpacing: 2
   },
   bottomBarItem: {

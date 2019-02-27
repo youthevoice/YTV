@@ -25,12 +25,7 @@ import { Divider } from "react-native-elements";
 import { Input, Button as Button1 } from "react-native-elements";
 import axios from "axios";
 
-import { RectButton, BorderlessButton } from "react-native-gesture-handler";
-import Loader from "./loader";
-
-import { connect } from "react-redux";
-
-class Comments extends Component {
+export default class Comments extends Component {
   constructor(props) {
     super(props);
 
@@ -39,15 +34,7 @@ class Comments extends Component {
       dotLoading: false,
       renderI: false,
       page: 0,
-      data: [],
-      upVote: false,
-      dwVote: false,
-      upVoteColor: "#9e9e9e",
-      dwVoteColor: "#9e9e9e",
-      upVoteTrueColor: "#42a5f5",
-      upVoteFalseColor: "#9e9e9e",
-      dwVoteTrueColor: "#424242",
-      dwVoteFalseColor: "#9e9e9e"
+      data: []
     };
   }
 
@@ -76,7 +63,7 @@ class Comments extends Component {
 
     if (_voiceType == "Video") {
       this.props.navigation.navigate("PlayVideo", {
-        sourceId: "https://youthevoice.com/" + _sourceId
+        datailData: ""
       });
     }
 
@@ -88,23 +75,21 @@ class Comments extends Component {
     }
   };
 
-  _ytvAppsVoice = () => {};
-
-  renderItem = ({ item, index }) => (
+  renderItem = ({ item }) => (
     <View style={styles.card} key={item.commentId}>
       <View>
         <View style={{ justifyContent: "center", alignItems: "center" }}>
           <Text
             style={{
-              fontSize: 14,
-              fontFamily: "OpenSans-SemiBold",
+              fontSize: 16,
+              // fontFamily: "Lobster-Regular",
               paddingBottom: 2,
               paddingTop: 2,
               paddingLeft: 5
               // color: "#424242"
             }}
           >
-            {item.userName.toUpperCase()}
+            {item.userName}
           </Text>
         </View>
         <View>
@@ -120,177 +105,43 @@ class Comments extends Component {
           </Text>
         </View>
       </View>
-      {item.voiceType == "Audio" && (
-        <View style={{ padding: 10 }}>
-          <TouchableOpacity
-            style={styles.bottomBarItem}
-            onPress={this.navigateToSource(item.voiceType, item.sourceId)}
-          >
-            <View style={{ flexDirection: "row", alignItems: "center" }}>
-              <Text
-                style={{
-                  paddingRight: 10,
-                  fontFamily: "OpenSans-SemiBold"
-                  //color: "#1b5e20"
-                }}
-              >
-                Audio Voice
-              </Text>
 
-              <Button1
-                buttonStyle={styles.audioButton}
-                icon={<Fa5 name="headphones" size={15} color="white" />}
-                iconLeft
-                type={"clear"}
-              />
+      <View>
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "space-around",
+            paddingBottom: 15
+          }}
+        >
+          <TouchableOpacity>
+            <View style={{ flexDirection: "row", alignItems: "center" }}>
+              <Icon name="md-thumbs-up" size={30} />
+              <Text style={{ padding: 10 }}> 787</Text>
+            </View>
+          </TouchableOpacity>
+
+          <TouchableOpacity>
+            <View style={{ flexDirection: "row", alignItems: "center" }}>
+              <Icon name="md-thumbs-down" size={30} />
+              <Text style={{ padding: 10 }}> 187</Text>
             </View>
           </TouchableOpacity>
         </View>
-      )}
-
-      {item.voiceType == "Video" && (
-        <View style={{ padding: 10 }}>
-          <TouchableOpacity
-            style={styles.bottomBarItem}
-            onPress={this.navigateToSource(item.voiceType, item.sourceId)}
-          >
-            <View style={{ flexDirection: "row", alignItems: "center" }}>
-              <Text
-                style={{
-                  paddingRight: 10,
-                  fontFamily: "OpenSans-SemiBold",
-                  fontSize: 16
-                  //color: "#1b5e20"
-                }}
-              >
-                Video Voice
-              </Text>
-
-              <Button1
-                buttonStyle={styles.videoButton}
-                icon={<Fa5 name="video" size={15} color="white" />}
-                iconLeft
-                type={"clear"}
-              />
-            </View>
-          </TouchableOpacity>
-        </View>
-      )}
-      {item.voiceType == "Image" && (
-        <View style={{ padding: 10 }}>
-          <TouchableOpacity
-            style={styles.bottomBarItem}
-            onPress={this.navigateToSource(item.voiceType, item.sourceId)}
-          >
-            <View style={{ flexDirection: "row", alignItems: "center" }}>
-              <Text
-                style={{
-                  paddingRight: 10,
-                  fontFamily: "OpenSans-SemiBold"
-                  //color: "#1b5e20"
-                }}
-              >
-                Image Voice
-              </Text>
-
-              <Button1
-                buttonStyle={styles.videoButton}
-                icon={<Fa5 name="images" size={15} color="white" />}
-                iconLeft
-                type={"clear"}
-              />
-            </View>
-          </TouchableOpacity>
-        </View>
-      )}
-
-      <View
-        style={{
-          flexDirection: "row",
-          justifyContent: "space-around",
-          padding: 10
-        }}
-      >
-        <TouchableOpacity onPress={this._upVote(item, index)}>
-          <Icon
-            name="md-thumbs-up"
-            size={30}
-            color={item.upVote ? "#42a5f5" : "#9e9e9e"}
-          />
-          <Text style={{ paddingVertical: 5 }}> 20k</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={this._dwVote(item, index)}>
-          <Icon
-            name="md-thumbs-down"
-            size={30}
-            color={item.dwVote ? "#424242" : "#9e9e9e"}
-          />
-          <Text style={{ paddingVertical: 5 }}> 20k</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={this._ytvAppsVoice(this.state.articleId)}>
-          <Icon name="md-share-alt" size={30} />
-          <Text style={{ paddingVertical: 5 }}> 20k</Text>
-        </TouchableOpacity>
       </View>
 
       <Divider style={{ backgroundColor: "#BDBDBD" }} />
-      <View
-        style={{
-          flexDirection: "row",
-          justifyContent: "space-around",
-          padding: 10
-        }}
-      >
-        <TouchableOpacity onPress={this.repliesToComment}>
-          <Text
-            style={{
-              fontSize: 14,
-              color: "#1565C0",
-              padding: 15
-            }}
-          >
-            20K Replies...
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={this.repliesToComment}>
-          <Button1
-            buttonStyle={styles.DelButton}
-            containerStyle={{ zIndex: 77 }}
-            type="outline"
-            icon={
-              <Fa5
-                name="ban"
-                size={15}
-                //color="white"
-                style={{ paddingRight: 5 }}
-              />
-            }
-            iconLeft
-            title="Delete"
-            //  onPress={this.deleteImage(item.name)}
-            // disabled={this.state.isUploading}
-          />
-        </TouchableOpacity>
-        <TouchableOpacity onPress={this.repliesToComment}>
-          <Button1
-            buttonStyle={styles.DelButton}
-            containerStyle={{ zIndex: 77 }}
-            type="outline"
-            icon={
-              <Fa5
-                name="ban"
-                size={15}
-                //color="white"
-                style={{ paddingRight: 5 }}
-              />
-            }
-            iconLeft
-            title="Report"
-            //  onPress={this.deleteImage(item.name)}
-            // disabled={this.state.isUploading}
-          />
-        </TouchableOpacity>
-      </View>
+      <TouchableOpacity onPress={this.repliesToComment}>
+        <Text
+          style={{
+            fontSize: 14,
+            color: "#1565C0",
+            padding: 15
+          }}
+        >
+          20K Replies...
+        </Text>
+      </TouchableOpacity>
     </View>
   );
 
@@ -367,72 +218,6 @@ class Comments extends Component {
     );
   };
 
-  _upVote = (item, index) => () => {
-    if (!this.props.isAuthenticated) {
-      this.props.navigation.navigate("YtvLogin", {
-        articleID: this.state.articleId
-      });
-    } else {
-      uvS = !this.state.upVote;
-
-      item.dwVote = false;
-      item.upVote = !item.upVote;
-
-      this.state.data[index] = item;
-
-      this.setState(
-        {
-          data: this.state.data
-        },
-        () => {
-          console.log("CommenttttId", this.state);
-          // this.sendUserVote(articleId);
-        }
-      );
-    }
-  };
-
-  _dwVote = (item, index) => () => {
-    console.log("I am in DWWWWW Voteeeee", item, index);
-    if (!this.props.isAuthenticated) {
-      this.props.navigation.navigate("YtvLogin", {
-        articleID: this.state.articleId
-      });
-    } else {
-      item.upVote = false;
-      item.dwVote = !item.dwVote;
-
-      this.state.data[index] = item;
-
-      this.setState(
-        {
-          data: this.state.data
-        },
-        () => {
-          // this.sendUserVote(articleId);
-        }
-      );
-    }
-  };
-
-  sendUserVote = articleId => {
-    axios
-      .post("https://youthevoice.com/postarticlelikes", {
-        userCommentVote: {
-          userId: this.props.userId,
-          articleId: this.state.articleId,
-          upVote: this.state.upVote,
-          dwVote: this.state.dwVote
-        }
-      })
-      .then(res => {
-        console.log(res);
-      })
-      .catch(error => {
-        this.setState({ error, loading: false });
-      });
-  };
-
   render() {
     // const { navigation } = this.props;
     // const articleID = navigation.getParam("articleID", "");
@@ -446,7 +231,7 @@ class Comments extends Component {
             style={{ flexDirection: "row", alignItems: "center", zIndex: 1 }}
           >
             <Icon name="ios-arrow-round-back" color="green" size={30} />
-            <Text style={styles.logo}>ytv-back...</Text>
+            <Text style={styles.logo}>Back...</Text>
           </TouchableOpacity>
         </View>
         {this.state.renderI && (
@@ -455,7 +240,6 @@ class Comments extends Component {
               <FlatList
                 keyExtractor={(item, index) => item.commentId}
                 data={this.state.data}
-                extraData={this.state}
                 renderItem={this.renderItem}
                 //  ListFooterComponent={this.renderFooter}
                 // refreshing={this.state.refreshing}
@@ -470,7 +254,7 @@ class Comments extends Component {
     );
   }
 }
-
+/*
 const mapStateToProps = state => {
   return {
     isLoggedIn: state.isLoggedIn,
@@ -481,24 +265,23 @@ const mapStateToProps = state => {
   };
 };
 
+const mapDispathToProps = dispatch => {
+  return {
+    userLogout: () => dispatch(logout())
+  };
+};
+
 export default connect(
   mapStateToProps,
-  null
-)(Comments);
-
+  mapDispathToProps
+)(AllComments);
+*/
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#EEEEEE" },
   question: {
     padding: 10,
     fontSize: 20,
     fontWeight: "bold"
-  },
-  DelButton: {
-    //backgroundColor: "#D32F2F",
-    borderRadius: 50,
-    margin: 10,
-    height: 40,
-    width: 100
   },
 
   LoginButton: {
@@ -595,9 +378,9 @@ const styles = StyleSheet.create({
     shadowOpacity: 1.0
   },
   logo: {
-    fontSize: 17,
+    fontSize: 20,
     fontWeight: "bold",
-    //color: "#000",
+    color: "#000",
     paddingLeft: 5,
     letterSpacing: 2
   },
@@ -616,7 +399,7 @@ const styles = StyleSheet.create({
     letterSpacing: 2
   },
   bottomBarItem: {
-    alignItems: "flex-start",
+    alignItems: "center",
     justifyContent: "center"
   }
 });

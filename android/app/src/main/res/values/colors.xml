@@ -5,6 +5,7 @@
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorStatusBar">#bf360c</color>
     <color name="navigationBarColor">#1b5e20</color>
+
     <color name="backgroundSplashColor">#000000</color>
     <color name="notificationColor">#000000</color>
 

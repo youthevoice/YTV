@@ -90,7 +90,7 @@ class Comments extends Component {
 
   _ytvAppsVoice = () => {};
 
-  renderItem = ({ item, index }) => (
+  renderItem = ({ item }) => (
     <View style={styles.card} key={item.commentId}>
       <View>
         <View style={{ justifyContent: "center", alignItems: "center" }}>
@@ -211,19 +211,27 @@ class Comments extends Component {
           padding: 10
         }}
       >
-        <TouchableOpacity onPress={this._upVote(item, index)}>
+        <TouchableOpacity onPress={this._upVote(item.commentId)}>
           <Icon
             name="md-thumbs-up"
             size={30}
-            color={item.upVote ? "#42a5f5" : "#9e9e9e"}
+            color={
+              this.state.upVote
+                ? this.state.upVoteTrueColor
+                : this.state.upVoteFalseColor
+            }
           />
           <Text style={{ paddingVertical: 5 }}> 20k</Text>
         </TouchableOpacity>
-        <TouchableOpacity onPress={this._dwVote(item, index)}>
+        <TouchableOpacity onPress={this._dwVote(item.commentId)}>
           <Icon
             name="md-thumbs-down"
             size={30}
-            color={item.dwVote ? "#424242" : "#9e9e9e"}
+            color={
+              this.state.dwVote
+                ? this.state.dwVoteTrueColor
+                : this.state.dwVoteFalseColor
+            }
           />
           <Text style={{ paddingVertical: 5 }}> 20k</Text>
         </TouchableOpacity>
@@ -367,7 +375,7 @@ class Comments extends Component {
     );
   };
 
-  _upVote = (item, index) => () => {
+  _upVote = commentId => () => {
     if (!this.props.isAuthenticated) {
       this.props.navigation.navigate("YtvLogin", {
         articleID: this.state.articleId
@@ -375,14 +383,10 @@ class Comments extends Component {
     } else {
       uvS = !this.state.upVote;
 
-      item.dwVote = false;
-      item.upVote = !item.upVote;
-
-      this.state.data[index] = item;
-
       this.setState(
         {
-          data: this.state.data
+          upVote: uvS,
+          dwVote: false
         },
         () => {
           console.log("CommenttttId", this.state);
@@ -392,24 +396,21 @@ class Comments extends Component {
     }
   };
 
-  _dwVote = (item, index) => () => {
-    console.log("I am in DWWWWW Voteeeee", item, index);
+  _dwVote = articleId => () => {
     if (!this.props.isAuthenticated) {
       this.props.navigation.navigate("YtvLogin", {
-        articleID: this.state.articleId
+        articleID: articleId
       });
     } else {
-      item.upVote = false;
-      item.dwVote = !item.dwVote;
-
-      this.state.data[index] = item;
+      dvS = !this.state.dwVote;
 
       this.setState(
         {
-          data: this.state.data
+          upVote: false,
+          dwVote: dvS
         },
         () => {
-          // this.sendUserVote(articleId);
+          this.sendUserVote(articleId);
         }
       );
     }
@@ -446,7 +447,7 @@ class Comments extends Component {
             style={{ flexDirection: "row", alignItems: "center", zIndex: 1 }}
           >
             <Icon name="ios-arrow-round-back" color="green" size={30} />
-            <Text style={styles.logo}>ytv-back...</Text>
+            <Text style={styles.logo}>YTV-Back...</Text>
           </TouchableOpacity>
         </View>
         {this.state.renderI && (
@@ -455,7 +456,6 @@ class Comments extends Component {
               <FlatList
                 keyExtractor={(item, index) => item.commentId}
                 data={this.state.data}
-                extraData={this.state}
                 renderItem={this.renderItem}
                 //  ListFooterComponent={this.renderFooter}
                 // refreshing={this.state.refreshing}
@@ -595,7 +595,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 1.0
   },
   logo: {
-    fontSize: 17,
+    fontSize: 20,
     fontWeight: "bold",
     //color: "#000",
     paddingLeft: 5,

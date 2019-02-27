@@ -459,6 +459,20 @@ class Articles extends React.Component {
 
               <Text style={styles.logo}>YouTheVoice</Text>
             </View>
+
+            <View
+              style={{
+                backgroundColor: "#1b5e20",
+                width: "100%",
+                flexDirection: "row",
+                justifyContent: "space-around",
+                padding: 5
+              }}
+            >
+              <Icon name="ios-bulb" color="#fff" size={25} />
+              <Icon name="ios-bulb" color="#fff" size={25} />
+              <Icon name="ios-bulb" color="#fff" size={25} />
+            </View>
           </View>
           <Loader loading={this.state.loadL} />
           <View style={{ borderTopLeftRadius: 7.5 }}>
@@ -513,8 +527,8 @@ const styles = StyleSheet.create({
   },
   headerBar: {
     // flexDirection: "row",
-    height: 75,
-    backgroundColor: "#212121",
+    height: 120,
+    backgroundColor: "#000",
     justifyContent: "center",
     justifyContent: "space-between",
     alignItems: "center",
@@ -587,5 +601,5 @@ const styles = StyleSheet.create({
     color: "#616161"
     //lineHeight: 1
   },
-  share: { padding: 5, color: "#388e3c", fontFamily: "OpenSans-SemiBold" }
+  share: { padding: 5, color: "#388e3c", fontFamily: "Lobster-Regular" }
 });
