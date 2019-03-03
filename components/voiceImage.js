@@ -58,7 +58,8 @@ class VoiceImage extends React.Component {
       voiceType: "Image",
       PictureDir: dirs.PictureDir,
       articleId: this.props.navigation.getParam("articleId", ""),
-      screenName: this.props.navigation.getParam("screenName", "")
+      screenName: this.props.navigation.getParam("screenName", ""),
+      parentCommentId: this.props.navigation.getParam("parentCommentId", "c0")
     });
   }
 
@@ -141,12 +142,13 @@ class VoiceImage extends React.Component {
       .post("https://youthevoice.com/postTextAudioComment", {
         voiceType: "Image",
         commentId: this.state.imageData[0].name,
+        parentCommentId: this.state.parentCommentId,
         textComment: this.state.commentText,
         sourceId: this.state.imageData,
         screenName: "VoiceImage",
         userId: this.props.userId,
         userName: this.props.sName,
-        articleId: articleId,
+        articleId: this.state.articleId,
         timeBeforeUpload: new Date(),
         likeCnt: 0,
         dlikeCnt: 0

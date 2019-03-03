@@ -57,7 +57,12 @@ class VoiceAudio extends Component {
 
   componentDidMount() {
     AudioRecorder.requestAuthorization().then(isAuthorised => {
-      this.setState({ hasPermission: isAuthorised });
+      this.setState({
+        hasPermission: isAuthorised,
+        articleId: this.props.navigation.getParam("articleId", ""),
+        screenName: this.props.navigation.getParam("screenName", ""),
+        parentCommentId: this.props.navigation.getParam("parentCommentId", "c0")
+      });
 
       if (!isAuthorised) return;
 
@@ -263,8 +268,9 @@ class VoiceAudio extends Component {
       .post("https://youthevoice.com/postTextAudioComment", {
         voiceType: "Audio",
         commentId: _uuid,
+        parentCommentId: this.state.parentCommentId,
         textComment: this.state.commentText,
-        sourceId: _uuid,
+        sourceId: _uuid + ".mp4",
         screenName: "VoiceAudio",
         userId: this.props.userId,
         userName: this.props.sName,

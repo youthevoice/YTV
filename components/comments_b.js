@@ -47,7 +47,11 @@ class Comments extends Component {
       upVoteTrueColor: "#42a5f5",
       upVoteFalseColor: "#9e9e9e",
       dwVoteTrueColor: "#424242",
-      dwVoteFalseColor: "#9e9e9e"
+      dwVoteFalseColor: "#9e9e9e",
+      reported: false,
+      reportedTrueColor: "#EF5350",
+      reportedFalseColor: "#9e9e9e",
+      userLikes: []
     };
   }
 
@@ -88,9 +92,47 @@ class Comments extends Component {
     }
   };
 
-  _ytvAppsVoice = () => {};
+  _getQuizResults = () => {};
 
-  renderItem = ({ item }) => (
+  _delComment = (item, index) => () => {
+    var data = this.state.data;
+    data1 = data.splice(index, 1);
+    this.setState({ data: data1 }, () => {
+      console.log("Data after delete", this.state.data);
+
+      fetch("https://youthevoice.com/delcomment/", {
+        method: "POST",
+        headers: {
+          Accept: "application/json, text/plain, */*",
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          userId: this.props.userId,
+          articleId: this.state.articleId,
+          commentId: item.commentId
+        })
+      })
+        .then(response => response.json())
+        .then(responseJson => {
+          console.log("responseJson.data", responseJson.data);
+          // this.setState({ data: responseJson.data, renderI: true });
+        })
+        .catch(error => {
+          console.error(error);
+        });
+    });
+  };
+
+  _ytvAppsVoice = _commentId => () => {
+    console.log("Iam in commentssssss");
+    this.props.navigation.navigate("OnlyYtvVoice", {
+      articleId: this.state.articleId,
+      screenName: "AllComments",
+      parentCommentId: _commentId
+    });
+  };
+
+  renderItem = ({ item, index }) => (
     <View style={styles.card} key={item.commentId}>
       <View>
         <View style={{ justifyContent: "center", alignItems: "center" }}>
@@ -211,31 +253,23 @@ class Comments extends Component {
           padding: 10
         }}
       >
-        <TouchableOpacity onPress={this._upVote(item.commentId)}>
+        <TouchableOpacity onPress={this._upVote(item, index)}>
           <Icon
             name="md-thumbs-up"
             size={30}
-            color={
-              this.state.upVote
-                ? this.state.upVoteTrueColor
-                : this.state.upVoteFalseColor
-            }
+            color={item.upVote ? "#42a5f5" : "#9e9e9e"}
           />
           <Text style={{ paddingVertical: 5 }}> 20k</Text>
         </TouchableOpacity>
-        <TouchableOpacity onPress={this._dwVote(item.commentId)}>
+        <TouchableOpacity onPress={this._dwVote(item, index)}>
           <Icon
             name="md-thumbs-down"
             size={30}
-            color={
-              this.state.dwVote
-                ? this.state.dwVoteTrueColor
-                : this.state.dwVoteFalseColor
-            }
+            color={item.dwVote ? "#424242" : "#9e9e9e"}
           />
           <Text style={{ paddingVertical: 5 }}> 20k</Text>
         </TouchableOpacity>
-        <TouchableOpacity onPress={this._ytvAppsVoice(this.state.articleId)}>
+        <TouchableOpacity onPress={this._ytvAppsVoice(item.commentId)}>
           <Icon name="md-share-alt" size={30} />
           <Text style={{ paddingVertical: 5 }}> 20k</Text>
         </TouchableOpacity>
@@ -260,7 +294,7 @@ class Comments extends Component {
             20K Replies...
           </Text>
         </TouchableOpacity>
-        <TouchableOpacity onPress={this.repliesToComment}>
+        <TouchableOpacity>
           <Button1
             buttonStyle={styles.DelButton}
             containerStyle={{ zIndex: 77 }}
@@ -275,7 +309,7 @@ class Comments extends Component {
             }
             iconLeft
             title="Delete"
-            //  onPress={this.deleteImage(item.name)}
+            onPress={this._delComment(item, index)}
             // disabled={this.state.isUploading}
           />
         </TouchableOpacity>
@@ -286,15 +320,15 @@ class Comments extends Component {
             type="outline"
             icon={
               <Fa5
-                name="ban"
+                name="bug"
                 size={15}
-                //color="white"
+                color={item.reported ? "#E57373" : "#9e9e9e"}
                 style={{ paddingRight: 5 }}
               />
             }
             iconLeft
-            title="Report"
-            //  onPress={this.deleteImage(item.name)}
+            title={item.reported ? "Reported" : "Report"}
+            onPress={this._reported(item, index)}
             // disabled={this.state.isUploading}
           />
         </TouchableOpacity>
@@ -318,6 +352,7 @@ class Comments extends Component {
         }
       })
       .then(res => {
+        console.log("commentssss responseeee", res.data);
         this.setState(
           {
             data: page === 0 ? res.data : [...this.state.data, ...res.data],
@@ -329,6 +364,7 @@ class Comments extends Component {
           },
           () => {
             console.log("Datatttt", this.state.data);
+            // this.getUserVotes();
           }
         );
       })
@@ -375,7 +411,7 @@ class Comments extends Component {
     );
   };
 
-  _upVote = commentId => () => {
+  _upVote = (item, index) => () => {
     if (!this.props.isAuthenticated) {
       this.props.navigation.navigate("YtvLogin", {
         articleID: this.state.articleId
@@ -383,47 +419,123 @@ class Comments extends Component {
     } else {
       uvS = !this.state.upVote;
 
+      item.dwVote = false;
+      item.upVote = !item.upVote;
+
+      this.state.data[index] = item;
+
       this.setState(
         {
-          upVote: uvS,
-          dwVote: false
+          data: this.state.data,
+          dwVote: false,
+          upVote: item.upVote
         },
         () => {
           console.log("CommenttttId", this.state);
-          // this.sendUserVote(articleId);
+          this.sendUserVote(item.commentId);
         }
       );
     }
   };
 
-  _dwVote = articleId => () => {
+  _dwVote = (item, index) => () => {
+    console.log("I am in DWWWWW Voteeeee", item, index);
     if (!this.props.isAuthenticated) {
       this.props.navigation.navigate("YtvLogin", {
-        articleID: articleId
+        articleID: this.state.articleId
       });
     } else {
-      dvS = !this.state.dwVote;
+      item.upVote = false;
+      item.dwVote = !item.dwVote;
+
+      this.state.data[index] = item;
 
       this.setState(
         {
+          data: this.state.data,
           upVote: false,
-          dwVote: dvS
+          dwVote: item.dwVote
         },
         () => {
-          this.sendUserVote(articleId);
+          this.sendUserVote(item.commentId);
         }
       );
     }
   };
 
-  sendUserVote = articleId => {
+  _reported = (item, index) => () => {
+    if (!this.props.isAuthenticated) {
+      this.props.navigation.navigate("YtvLogin", {
+        articleID: this.state.articleId
+      });
+    } else {
+      item.reported = !item.reported;
+
+      this.state.data[index] = item;
+
+      this.setState(
+        {
+          data: this.state.data,
+
+          reported: item.reported
+        },
+        () => {
+          console.log("reporteddddddd", this.state);
+          this.sendUserReportedComment(item.commentId);
+        }
+      );
+    }
+  };
+
+  getUserVotes = () => {
+    fetch("https://youthevoice.com/getarticlecommentlike/", {
+      method: "POST",
+      headers: {
+        Accept: "application/json, text/plain, */*",
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        userId: this.props.userId,
+        articleId: this.state.articleId
+      })
+    })
+      .then(response => response.json())
+      .then(responseJson => {
+        console.log("responseJson.user likesssss", responseJson.data);
+        this.setState({ userLikes: responseJson.data });
+      })
+      .catch(error => {
+        console.error(error);
+      });
+  };
+
+  sendUserVote = _commentId => {
     axios
-      .post("https://youthevoice.com/postarticlelikes", {
+      .post("https://youthevoice.com/postcommentlikes", {
         userCommentVote: {
           userId: this.props.userId,
           articleId: this.state.articleId,
+          commentId: _commentId,
           upVote: this.state.upVote,
           dwVote: this.state.dwVote
+        }
+      })
+      .then(res => {
+        console.log(res);
+      })
+      .catch(error => {
+        this.setState({ error, loading: false });
+      });
+  };
+
+  sendUserReportedComment = _commentId => {
+    axios
+      .post("https://youthevoice.com/postcommentreported", {
+        userCommentReport: {
+          userId: this.props.userId,
+          articleId: this.state.articleId,
+          commentId: _commentId,
+          reported: this.state.reported
         }
       })
       .then(res => {
@@ -447,7 +559,7 @@ class Comments extends Component {
             style={{ flexDirection: "row", alignItems: "center", zIndex: 1 }}
           >
             <Icon name="ios-arrow-round-back" color="green" size={30} />
-            <Text style={styles.logo}>YTV-Back...</Text>
+            <Text style={styles.logo}>ytv-back...</Text>
           </TouchableOpacity>
         </View>
         {this.state.renderI && (
@@ -456,6 +568,7 @@ class Comments extends Component {
               <FlatList
                 keyExtractor={(item, index) => item.commentId}
                 data={this.state.data}
+                extraData={this.state.userLikes}
                 renderItem={this.renderItem}
                 //  ListFooterComponent={this.renderFooter}
                 // refreshing={this.state.refreshing}
@@ -595,7 +708,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 1.0
   },
   logo: {
-    fontSize: 20,
+    fontSize: 17,
     fontWeight: "bold",
     //color: "#000",
     paddingLeft: 5,

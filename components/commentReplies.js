@@ -23,29 +23,524 @@ import Icon from "react-native-vector-icons/Ionicons";
 import { Divider } from "react-native-elements";
 
 import { Input, Button as Button1 } from "react-native-elements";
+import axios from "axios";
 
-export default class CommentReplies extends Component {
+import { RectButton, BorderlessButton } from "react-native-gesture-handler";
+import Loader from "./loader";
+
+import { connect } from "react-redux";
+
+class Comments extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
       loading: true,
-      dotLoading: false
+      dotLoading: false,
+      renderI: false,
+      page: 0,
+      data: [],
+      upVote: false,
+      dwVote: false,
+      upVoteColor: "#9e9e9e",
+      dwVoteColor: "#9e9e9e",
+      upVoteTrueColor: "#42a5f5",
+      upVoteFalseColor: "#9e9e9e",
+      dwVoteTrueColor: "#424242",
+      dwVoteFalseColor: "#9e9e9e",
+      reported: false,
+      reportedTrueColor: "#EF5350",
+      reportedFalseColor: "#9e9e9e",
+      userLikes: []
     };
   }
 
   async componentDidMount() {
-    this.setState({});
-    console.log(this.state);
+    this.setState(
+      {
+        articleId: this.props.navigation.getParam("articleId", ""),
+        parentCommentId: this.props.navigation.getParam("parentCommentId", "c0")
+      },
+      () => {
+        this._getAllComments();
+      }
+    );
   }
+  repliesToComment = _commentId => () => {
+    this.props.navigation.navigate("CommentReplies", {
+      articleId: this.state.articleId,
+      parentCommentId: _commentId
+    });
+  };
 
-  logout = async () => {
-    this.setState({ dotLoading: true });
-    await AsyncStorage.removeItem("isLoggedIn");
-    await AsyncStorage.removeItem("authMethod");
-    await AsyncStorage.removeItem("userId");
-    await AsyncStorage.removeItem("sName");
-    this.setState({ dotLoading: false });
+  navigateToSource = (_voiceType, _sourceId) => () => {
+    if (_voiceType == "Image") {
+      this.props.navigation.navigate("CommentReplies", {
+        datailData: ""
+      });
+    }
+
+    if (_voiceType == "Video") {
+      this.props.navigation.navigate("PlayVideo", {
+        sourceId: "https://youthevoice.com/" + _sourceId
+      });
+    }
+
+    if (_voiceType == "Audio") {
+      console.log("AudiooooIDDDD", "https://youthevoice.com/" + _sourceId);
+      this.props.navigation.navigate("PlaySound", {
+        sourceId: "https://youthevoice.com/" + _sourceId
+      });
+    }
+  };
+
+  _getQuizResults = () => {};
+
+  _delComment = (item, index) => () => {
+    var data = this.state.data;
+    let updatedState = data.filter(task => task.commentId !== item.commentId);
+
+    this.setState({ data: updatedState }, () => {
+      console.log("Data after delete", this.state.data);
+
+      fetch("https://youthevoice.com/delcomment/", {
+        method: "POST",
+        headers: {
+          Accept: "application/json, text/plain, */*",
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          userId: this.props.userId,
+          articleId: this.state.articleId,
+          commentId: item.commentId
+        })
+      })
+        .then(response => response.json())
+        .then(responseJson => {
+          console.log("responseJson.data", responseJson.data);
+          // this.setState({ data: responseJson.data, renderI: true });
+        })
+        .catch(error => {
+          console.error(error);
+        });
+    });
+  };
+
+  _ytvAppsVoice = _commentId => () => {
+    console.log("Iam in commentssssss");
+    this.props.navigation.navigate("OnlyYtvVoice", {
+      articleId: this.state.articleId,
+      screenName: "AllComments",
+      parentCommentId: _commentId
+    });
+  };
+
+  renderItem = ({ item, index }) => (
+    <View style={styles.card} key={item.commentId}>
+      <View>
+        <View style={{ justifyContent: "center", alignItems: "center" }}>
+          <Text
+            style={{
+              fontSize: 14,
+              fontFamily: "OpenSans-SemiBold",
+              paddingBottom: 2,
+              paddingTop: 2,
+              paddingLeft: 5
+              // color: "#424242"
+            }}
+          >
+            {item.userName.toUpperCase()}
+          </Text>
+        </View>
+        <View>
+          <Text
+            style={{
+              fontSize: 16,
+              paddingBottom: 2,
+              paddingTop: 1,
+              paddingLeft: 5
+            }}
+          >
+            {item.textComment}
+          </Text>
+        </View>
+      </View>
+      {item.voiceType == "Audio" && (
+        <View style={{ padding: 10 }}>
+          <TouchableOpacity
+            style={styles.bottomBarItem}
+            onPress={this.navigateToSource(item.voiceType, item.sourceId)}
+          >
+            <View style={{ flexDirection: "row", alignItems: "center" }}>
+              <Text
+                style={{
+                  paddingRight: 10,
+                  fontFamily: "OpenSans-SemiBold"
+                  //color: "#1b5e20"
+                }}
+              >
+                Audio Voice
+              </Text>
+
+              <Button1
+                buttonStyle={styles.audioButton}
+                icon={<Fa5 name="headphones" size={15} color="white" />}
+                iconLeft
+                type={"clear"}
+              />
+            </View>
+          </TouchableOpacity>
+        </View>
+      )}
+
+      {item.voiceType == "Video" && (
+        <View style={{ padding: 10 }}>
+          <TouchableOpacity
+            style={styles.bottomBarItem}
+            onPress={this.navigateToSource(item.voiceType, item.sourceId)}
+          >
+            <View style={{ flexDirection: "row", alignItems: "center" }}>
+              <Text
+                style={{
+                  paddingRight: 10,
+                  fontFamily: "OpenSans-SemiBold",
+                  fontSize: 16
+                  //color: "#1b5e20"
+                }}
+              >
+                Video Voice
+              </Text>
+
+              <Button1
+                buttonStyle={styles.videoButton}
+                icon={<Fa5 name="video" size={15} color="white" />}
+                iconLeft
+                type={"clear"}
+              />
+            </View>
+          </TouchableOpacity>
+        </View>
+      )}
+      {item.voiceType == "Image" && (
+        <View style={{ padding: 10 }}>
+          <TouchableOpacity
+            style={styles.bottomBarItem}
+            onPress={this.navigateToSource(item.voiceType, item.sourceId)}
+          >
+            <View style={{ flexDirection: "row", alignItems: "center" }}>
+              <Text
+                style={{
+                  paddingRight: 10,
+                  fontFamily: "OpenSans-SemiBold"
+                  //color: "#1b5e20"
+                }}
+              >
+                Image Voice
+              </Text>
+
+              <Button1
+                buttonStyle={styles.videoButton}
+                icon={<Fa5 name="images" size={15} color="white" />}
+                iconLeft
+                type={"clear"}
+              />
+            </View>
+          </TouchableOpacity>
+        </View>
+      )}
+
+      <View
+        style={{
+          flexDirection: "row",
+          justifyContent: "space-around",
+          padding: 10
+        }}
+      >
+        <TouchableOpacity onPress={this._upVote(item, index)}>
+          <Icon
+            name="md-thumbs-up"
+            size={30}
+            color={item.upVote ? "#42a5f5" : "#9e9e9e"}
+          />
+          <Text style={{ paddingVertical: 5 }}> 20k</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={this._dwVote(item, index)}>
+          <Icon
+            name="md-thumbs-down"
+            size={30}
+            color={item.dwVote ? "#424242" : "#9e9e9e"}
+          />
+          <Text style={{ paddingVertical: 5 }}> 20k</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={this._ytvAppsVoice(item.commentId)}>
+          <Icon name="md-share-alt" size={30} />
+          <Text style={{ paddingVertical: 5 }}> 20k</Text>
+        </TouchableOpacity>
+      </View>
+
+      <Divider style={{ backgroundColor: "#BDBDBD" }} />
+      <View
+        style={{
+          flexDirection: "row",
+          justifyContent: "space-around",
+          padding: 10
+        }}
+      >
+        <TouchableOpacity>
+          <Button1
+            buttonStyle={styles.DelButton}
+            containerStyle={{ zIndex: 77 }}
+            type="outline"
+            icon={
+              <Fa5
+                name="ban"
+                size={15}
+                //color="white"
+                style={{ paddingRight: 5 }}
+              />
+            }
+            iconLeft
+            title="Delete"
+            onPress={this._delComment(item, index)}
+            // disabled={this.state.isUploading}
+          />
+        </TouchableOpacity>
+        <TouchableOpacity>
+          <Button1
+            buttonStyle={styles.DelButton}
+            containerStyle={{ zIndex: 77 }}
+            type="outline"
+            icon={
+              <Fa5
+                name="bug"
+                size={15}
+                color={item.reported ? "#E57373" : "#9e9e9e"}
+                style={{ paddingRight: 5 }}
+              />
+            }
+            iconLeft
+            title={item.reported ? "Reported" : "Report"}
+            onPress={this._reported(item, index)}
+            // disabled={this.state.isUploading}
+          />
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+
+  _keyExtractor = (item, index) => item.id;
+
+  separator = () => <View style={styles.separator} />;
+
+  _getAllComments = () => {
+    console.log("aricleIDDDD", this.state.articleId);
+    this.setState({ loading: true });
+    const { page } = this.state;
+    axios
+      .get("https://youthevoice.com/getarticlecomments", {
+        params: {
+          articleId: this.state.articleId,
+          page: page,
+          parentCommentId: this.state.parentCommentId
+        }
+      })
+      .then(res => {
+        console.log("commentssss responseeee", res.data.data);
+        this.setState(
+          {
+            data:
+              page === 0
+                ? res.data.data
+                : [...this.state.data, ...res.data.data],
+            //data: [...this.state.data, ...res.data],
+            loading: false,
+            renderI: true,
+
+            loadDone: res.data.length <= 10 ? true : false
+          },
+          () => {
+            console.log("Datatttt", this.state.data);
+            // this.getUserVotes();
+          }
+        );
+      })
+      .catch(error => {
+        this.setState({ error, loading: false });
+      });
+  };
+
+  renderFooter = () => {
+    if (!this.state.loading) return null;
+
+    return (
+      <View
+        style={{
+          paddingVertical: 20,
+          borderTopWidth: 1,
+          borderColor: "#CED0CE"
+        }}
+      />
+    );
+  };
+
+  findLastArticleId = () => {
+    return this.state.data[this.state.data.length - 1].articlePk;
+  };
+
+  loadMore = () => {
+    alert("jeevann...");
+    //this.getAllArticles(this.findLastArticleId());
+
+    this.setState(
+      {
+        page: this.state.page + 1
+      },
+      () => {
+        if (!this.state.loadDone) {
+          //(this.getAllArticles(this.state.page), 500);
+          //debounce(this.getAllArticles(this.state.page), 1000);
+          // alert("jeevann...");
+          this.getAllArticles(this.state.page);
+        }
+        // this.getAllArticles(this.state.page);
+      }
+    );
+  };
+
+  _upVote = (item, index) => () => {
+    if (!this.props.isAuthenticated) {
+      this.props.navigation.navigate("YtvLogin", {
+        articleID: this.state.articleId
+      });
+    } else {
+      uvS = !this.state.upVote;
+
+      item.dwVote = false;
+      item.upVote = !item.upVote;
+
+      this.state.data[index] = item;
+
+      this.setState(
+        {
+          data: this.state.data,
+          dwVote: false,
+          upVote: item.upVote
+        },
+        () => {
+          console.log("CommenttttId", this.state);
+          this.sendUserVote(item.commentId);
+        }
+      );
+    }
+  };
+
+  _dwVote = (item, index) => () => {
+    console.log("I am in DWWWWW Voteeeee", item, index);
+    if (!this.props.isAuthenticated) {
+      this.props.navigation.navigate("YtvLogin", {
+        articleID: this.state.articleId
+      });
+    } else {
+      item.upVote = false;
+      item.dwVote = !item.dwVote;
+
+      this.state.data[index] = item;
+
+      this.setState(
+        {
+          data: this.state.data,
+          upVote: false,
+          dwVote: item.dwVote
+        },
+        () => {
+          this.sendUserVote(item.commentId);
+        }
+      );
+    }
+  };
+
+  _reported = (item, index) => () => {
+    if (!this.props.isAuthenticated) {
+      this.props.navigation.navigate("YtvLogin", {
+        articleID: this.state.articleId
+      });
+    } else {
+      item.reported = !item.reported;
+
+      this.state.data[index] = item;
+
+      this.setState(
+        {
+          data: this.state.data,
+
+          reported: item.reported
+        },
+        () => {
+          console.log("reporteddddddd", this.state);
+          this.sendUserReportedComment(item.commentId);
+        }
+      );
+    }
+  };
+
+  getUserVotes = () => {
+    fetch("https://youthevoice.com/getarticlecommentlike/", {
+      method: "POST",
+      headers: {
+        Accept: "application/json, text/plain, */*",
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        userId: this.props.userId,
+        articleId: this.state.articleId
+      })
+    })
+      .then(response => response.json())
+      .then(responseJson => {
+        console.log("responseJson.user likesssss", responseJson.data);
+        this.setState({ userLikes: responseJson.data });
+      })
+      .catch(error => {
+        console.error(error);
+      });
+  };
+
+  sendUserVote = _commentId => {
+    axios
+      .post("https://youthevoice.com/postcommentlikes", {
+        userCommentVote: {
+          userId: this.props.userId,
+          articleId: this.state.articleId,
+          commentId: _commentId,
+          upVote: this.state.upVote,
+          dwVote: this.state.dwVote,
+          reported: this.state.reported
+        }
+      })
+      .then(res => {
+        console.log(res);
+      })
+      .catch(error => {
+        this.setState({ error, loading: false });
+      });
+  };
+
+  sendUserReportedComment = _commentId => {
+    axios
+      .post("https://youthevoice.com/postcommentreported", {
+        userCommentReport: {
+          userId: this.props.userId,
+          articleId: this.state.articleId,
+          commentId: _commentId,
+          reported: this.state.reported
+        }
+      })
+      .then(res => {
+        console.log(res);
+      })
+      .catch(error => {
+        this.setState({ error, loading: false });
+      });
   };
 
   render() {
@@ -54,237 +549,38 @@ export default class CommentReplies extends Component {
 
     return (
       <SafeAreaView style={styles.container}>
-        <StatusBar barStyle="dark-content" backgroundColor="#bf360c" />
-        <View style={styles.headerBar}>
-          <TouchableOpacity>
-            <View style={{ flexDirection: "row", alignItems: "center" }}>
-              <Icon name="ios-arrow-round-back" color="#fff" size={30} />
-              <Text style={styles.logo}>Back...</Text>
-            </View>
-          </TouchableOpacity>
-          <View>
-            <Text style={styles.h1w}>Replies to Voice</Text>
-          </View>
-        </View>
-
-        <View style={styles.card}>
-          <Text style={styles.cardHeader}>Jeevan Kumar Deva</Text>
-          <Text style={styles.commentText}>
-            o we will support those who ensured incessant price rise & ensured
-            cheapest vegetables cost Rs. 80/- leave aside Vegetables like Beans
-            & carrot which were > Rs. 100/- most part of the year.
-          </Text>
-
-          <View style={{ padding: 10 }}>
-            <View
-              style={{
-                flexDirection: "row",
-                justifyContent: "space-around",
-                padding: 10
-              }}
-            >
-              <TouchableOpacity>
-                <View style={{ flexDirection: "row", alignItems: "center" }}>
-                  <Button1
-                    buttonStyle={styles.LoginButton}
-                    icon={<Fa5 name="microphone-alt" size={15} color="white" />}
-                    iconLeft
-                    type={"clear"}
-                  />
-                </View>
-                <Text style={{ padding: 10, color: "#388e3c" }}>
-                  Audio Voice
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity>
-                <View style={{ flexDirection: "row", alignItems: "center" }}>
-                  <Button1
-                    buttonStyle={styles.LoginButton}
-                    icon={<Fa5 name="video" size={15} color="white" />}
-                    iconLeft
-
-                    //  onPress={this.verifyCode}
-                    //loading={this.state.otpLoading}
-                  />
-                </View>
-                <Text style={{ padding: 10, color: "#388e3c" }}>
-                  Audio Voice
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity>
-                <View style={{ flexDirection: "row", alignItems: "center" }}>
-                  <Button1
-                    buttonStyle={styles.LoginButton}
-                    icon={<Fa5 name="image" size={15} color="white" />}
-                    iconLeft
-
-                    //  onPress={this.verifyCode}
-                    //loading={this.state.otpLoading}
-                  />
-                </View>
-                <Text style={{ padding: 10, color: "#388e3c" }}>
-                  Audio Voice
-                </Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-
-          <View>
-            <View
-              style={{
-                flexDirection: "row",
-                justifyContent: "space-around"
-              }}
-            >
-              <TouchableOpacity>
-                <View style={{ flexDirection: "row", alignItems: "center" }}>
-                  <Icon name="md-thumbs-up" size={30} color="#388e3c" />
-                  <Text style={{ padding: 10, color: "#388e3c" }}> 787</Text>
-                </View>
-              </TouchableOpacity>
-
-              <TouchableOpacity>
-                <View style={{ flexDirection: "row", alignItems: "center" }}>
-                  <Icon name="md-thumbs-down" size={30} color="#388e3c" />
-                  <Text style={{ padding: 10, color: "#388e3c" }}> 187</Text>
-                </View>
-              </TouchableOpacity>
-              <TouchableOpacity>
-                <View style={{ flexDirection: "row", alignItems: "center" }}>
-                  <Icon name="md-share-alt" size={30} color="#388e3c" />
-                  <Text style={{ padding: 10, color: "#388e3c" }}> 987</Text>
-                </View>
-              </TouchableOpacity>
-            </View>
-          </View>
-
-          <Divider style={{ backgroundColor: "blue" }} />
+        <StatusBar barStyle="light-content" backgroundColor="#bf360c" />
+        <View>
           <TouchableOpacity
-            style={styles.qoption}
-            // onPress={this.setOptionsColor(1, 1)}
+            onPress={() => this.props.navigation.goBack()}
+            style={{ flexDirection: "row", alignItems: "center", zIndex: 1 }}
           >
-            <Text
-              style={{
-                fontSize: 20,
-                color: this.state.quiz1option1 ? "green" : "black"
-              }}
-            >
-              View All 20K Replies...
-            </Text>
+            <Icon name="ios-arrow-round-back" color="green" size={30} />
+            <Text style={styles.logo}>ytv-back...</Text>
           </TouchableOpacity>
         </View>
-
-        <View style={styles.card}>
-          <Text style={styles.cardHeader}>Tinnu Bunny</Text>
-          <Text style={styles.commentText}>
-            o we will support those who ensured incessant price rise & ensured
-            cheapest vegetables cost Rs. 80/- leave aside Vegetables like Beans
-            & carrot which were > Rs. 100/- most part of the year.
-          </Text>
-
-          <View style={{ padding: 10 }}>
-            <View
-              style={{
-                flexDirection: "row",
-                justifyContent: "space-around",
-                padding: 10
-              }}
-            >
-              <TouchableOpacity>
-                <View style={{ flexDirection: "row", alignItems: "center" }}>
-                  <Button1
-                    buttonStyle={styles.LoginButton}
-                    icon={<Fa5 name="microphone-alt" size={15} color="white" />}
-                    iconLeft
-                    type={"clear"}
-                  />
-                </View>
-                <Text style={{ padding: 10, color: "#388e3c" }}>
-                  Audio Voice
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity>
-                <View style={{ flexDirection: "row", alignItems: "center" }}>
-                  <Button1
-                    buttonStyle={styles.LoginButton}
-                    icon={<Fa5 name="video" size={15} color="white" />}
-                    iconLeft
-
-                    //  onPress={this.verifyCode}
-                    //loading={this.state.otpLoading}
-                  />
-                </View>
-                <Text style={{ padding: 10, color: "#388e3c" }}>
-                  Audio Voice
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity>
-                <View style={{ flexDirection: "row", alignItems: "center" }}>
-                  <Button1
-                    buttonStyle={styles.LoginButton}
-                    icon={<Fa5 name="image" size={15} color="white" />}
-                    iconLeft
-
-                    //  onPress={this.verifyCode}
-                    //loading={this.state.otpLoading}
-                  />
-                </View>
-                <Text style={{ padding: 10, color: "#388e3c" }}>
-                  Audio Voice
-                </Text>
-              </TouchableOpacity>
+        {this.state.renderI && (
+          <ScrollView>
+            <View style={{ borderTopLeftRadius: 7.5 }}>
+              <FlatList
+                keyExtractor={(item, index) => item.commentId}
+                data={this.state.data}
+                extraData={this.state}
+                renderItem={this.renderItem}
+                //  ListFooterComponent={this.renderFooter}
+                // refreshing={this.state.refreshing}
+                // onRefresh={this.handleRefresh}
+                //  onEndReachedThreshold={0.1}
+                //  onEndReached={this.loadMore}
+              />
             </View>
-          </View>
-
-          <View>
-            <View
-              style={{
-                flexDirection: "row",
-                justifyContent: "space-around"
-              }}
-            >
-              <TouchableOpacity>
-                <View style={{ flexDirection: "row", alignItems: "center" }}>
-                  <Icon name="md-thumbs-up" size={30} color="#388e3c" />
-                  <Text style={{ padding: 10, color: "#388e3c" }}> 787</Text>
-                </View>
-              </TouchableOpacity>
-
-              <TouchableOpacity>
-                <View style={{ flexDirection: "row", alignItems: "center" }}>
-                  <Icon name="md-thumbs-down" size={30} color="#388e3c" />
-                  <Text style={{ padding: 10, color: "#388e3c" }}> 187</Text>
-                </View>
-              </TouchableOpacity>
-              <TouchableOpacity>
-                <View style={{ flexDirection: "row", alignItems: "center" }}>
-                  <Icon name="md-share-alt" size={30} color="#388e3c" />
-                  <Text style={{ padding: 10, color: "#388e3c" }}> 987</Text>
-                </View>
-              </TouchableOpacity>
-            </View>
-          </View>
-
-          <Divider style={{ backgroundColor: "blue" }} />
-          <TouchableOpacity
-            style={styles.qoption}
-            // onPress={this.setOptionsColor(1, 1)}
-          >
-            <Text
-              style={{
-                fontSize: 20,
-                color: this.state.quiz1option1 ? "green" : "black"
-              }}
-            >
-              View All 20K Replies...
-            </Text>
-          </TouchableOpacity>
-        </View>
+          </ScrollView>
+        )}
       </SafeAreaView>
     );
   }
 }
-/*
+
 const mapStateToProps = state => {
   return {
     isLoggedIn: state.isLoggedIn,
@@ -295,35 +591,56 @@ const mapStateToProps = state => {
   };
 };
 
-const mapDispathToProps = dispatch => {
-  return {
-    userLogout: () => dispatch(logout())
-  };
-};
-
 export default connect(
   mapStateToProps,
-  mapDispathToProps
-)(AllComments);
-*/
+  null
+)(Comments);
+
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#e3f2fd" },
+  container: { flex: 1, backgroundColor: "#EEEEEE" },
   question: {
     padding: 10,
     fontSize: 20,
     fontWeight: "bold"
   },
+  DelButton: {
+    //backgroundColor: "#D32F2F",
+    borderRadius: 50,
+    margin: 10,
+    height: 40,
+    width: 100
+  },
 
   LoginButton: {
-    backgroundColor: "#0d47a1",
+    backgroundColor: "#E64A19",
+    borderRadius: 50,
+    padding: 10,
+    height: 40,
+    width: 50
+  },
+  imageButton: {
+    backgroundColor: "#0277BD",
+    borderRadius: 50,
+    padding: 10,
+    height: 40,
+    width: 50
+  },
+  audioButton: {
+    backgroundColor: "#1b5e20",
+    borderRadius: 50,
+    padding: 5,
+    height: 40,
+    width: 50
+  },
+  videoButton: {
+    backgroundColor: "#E64A19",
     borderRadius: 50,
     padding: 10,
     height: 40,
     width: 50
   },
   commentText: {
-    fontSize: 14,
-    padding: 5
+    fontSize: 16
   },
   qoption: {
     flexDirection: "row",
@@ -356,6 +673,12 @@ const styles = StyleSheet.create({
     color: "#bf360c",
     fontWeight: "bold"
   },
+  commentUser: {
+    fontSize: 16,
+    padding: 10,
+    //paddingTop: 10,
+    fontWeight: "bold"
+  },
   cardImage: {
     width: null,
     height: 100
@@ -382,9 +705,9 @@ const styles = StyleSheet.create({
     shadowOpacity: 1.0
   },
   logo: {
-    fontSize: 20,
+    fontSize: 17,
     fontWeight: "bold",
-    color: "#fff",
+    //color: "#000",
     paddingLeft: 5,
     letterSpacing: 2
   },
@@ -403,7 +726,7 @@ const styles = StyleSheet.create({
     letterSpacing: 2
   },
   bottomBarItem: {
-    alignItems: "center",
+    alignItems: "flex-start",
     justifyContent: "center"
   }
 });

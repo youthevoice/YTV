@@ -50,10 +50,16 @@ class VoiceVideo extends React.Component {
   }
 
   componentDidMount() {
-    this.setState({
-      articleId: this.props.navigation.getParam("articleId", ""),
-      screenName: this.props.navigation.getParam("screenName", "")
-    });
+    this.setState(
+      {
+        articleId: this.props.navigation.getParam("articleId", ""),
+        screenName: this.props.navigation.getParam("screenName", ""),
+        parentCommentId: this.props.navigation.getParam("parentCommentId", "c0")
+      },
+      () => {
+        console.log("I am in ONlyYTVVoice..VIDEOOOO..", this.state);
+      }
+    );
   }
 
   selectVideoTapped = () => {
@@ -173,6 +179,17 @@ class VoiceVideo extends React.Component {
     //console.log("from fun", err + taskid);
   };
 
+  getFilenameAndExtension = pathfilename => {
+    var filenameextension = pathfilename.replace(/^.*[\\\/]/, "");
+    var filename = filenameextension.substring(
+      0,
+      filenameextension.lastIndexOf(".")
+    );
+    var ext = filenameextension.split(".").pop();
+
+    return ext;
+  };
+
   _submitTextAudio = (articleId, screenName) => async () => {
     _uuid = await UUIDGenerator.getRandomUUID();
     console.log("satettt.......", this.state);
@@ -181,15 +198,16 @@ class VoiceVideo extends React.Component {
       .post("https://youthevoice.com/postTextAudioComment", {
         voiceType: "Video",
         commentId: _uuid,
+        parentCommentId: this.state.parentCommentId,
         textComment: this.state.commentText,
-        sourceId: _uuid,
+        sourceId:
+          _uuid + "." + this.getFilenameAndExtension(this.state.videoSource),
+        videoFullPath: this.state.videoSource,
         screenName: "VoiceVideo",
         userId: this.props.userId,
         userName: this.props.sName,
         articleId: this.state.articleId,
         timeBeforeUpload: new Date(),
-        upVote: false,
-        dwVote: false,
         likeCnt: 0,
         dlikeCnt: 0
       })

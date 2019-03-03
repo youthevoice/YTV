@@ -19,6 +19,7 @@ import {
 
 import Icon from "react-native-vector-icons/Ionicons";
 import HTML from "react-native-render-html";
+import Fa5 from "react-native-vector-icons/FontAwesome5";
 
 import axios from "axios";
 import { RectButton, BorderlessButton } from "react-native-gesture-handler";
@@ -341,6 +342,13 @@ class DetailArticle extends Component {
     });
   };
 
+  allComments = () => {
+    this.props.navigation.navigate("AllComments", {
+      articleId: this.props.navigation.getParam("articleId", ""),
+      parentCommentId: "c0"
+    });
+  };
+
   render() {
     const { navigation } = this.props;
     const detailData = this.state.articleData;
@@ -464,6 +472,61 @@ class DetailArticle extends Component {
                     <View style={styles.bottomBarItem}>
                       <Icon name="logo-youtube" size={30} />
                       <Text style={{ paddingVertical: 5 }}> YouTube</Text>
+                    </View>
+                  </TouchableOpacity>
+                </View>
+              </View>
+
+              <View style={styles.card}>
+                <Text style={styles.cardHeader}>View Voices and Analysis</Text>
+
+                <View
+                  style={{
+                    flexDirection: "row",
+                    justifyContent: "space-around",
+                    padding: 10
+                  }}
+                >
+                  <TouchableOpacity onPress={this.allComments}>
+                    <View style={styles.bottomBarItem}>
+                      <Icon name="md-chatboxes" size={30} color="#388e3c" />
+                      <Text style={{ paddingVertical: 5 }}> View Voices</Text>
+                    </View>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    // onPress={this.openUrl("403845640359795")}
+                    onPress={() =>
+                      this.props.navigation.navigate("VoiceAnalytics")
+                    }
+                  >
+                    <View style={styles.bottomBarItem}>
+                      <Fa5
+                        name="chart-area"
+                        size={30}
+                        // color="white"
+                        style={{ paddingRight: 5 }}
+                      />
+                      <Text style={{ paddingVertical: 5 }}>
+                        {" "}
+                        Voice Analytics
+                      </Text>
+                    </View>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    onPress={() =>
+                      this.props.navigation.navigate("VoiceAnalytics")
+                    }
+                  >
+                    <View style={styles.bottomBarItem}>
+                      <Fa5
+                        name="cloud-moon"
+                        size={30}
+                        // color="white"
+                        style={{ paddingRight: 5 }}
+                      />
+                      <Text style={{ paddingVertical: 5 }}> Voice Cloud</Text>
                     </View>
                   </TouchableOpacity>
                 </View>
@@ -667,7 +730,8 @@ const styles = StyleSheet.create({
     padding: 5,
     color: "#bf360c",
     // fontWeight: "bold",
-    fontFamily: "Lobster-Regular"
+    // fontFamily: "Lobster-Regular"
+    fontFamily: "OpenSans-SemiBold"
   },
   ytvcardHeader: {
     fontSize: 18,

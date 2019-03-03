@@ -19,14 +19,15 @@ import {
 import Fa5 from "react-native-vector-icons/FontAwesome5";
 
 import Icon from "react-native-vector-icons/Ionicons";
-
+import { connect } from "react-redux";
 import { Divider, Image } from "react-native-elements";
+import PhotoView from "react-native-photo-view-ex";
 
 import { Input, Button as Button1 } from "react-native-elements";
 import axios from "axios";
 import { data as testData } from "./data";
 
-export default class ImageList extends Component {
+class ImageList extends Component {
   constructor(props) {
     super(props);
 
@@ -42,13 +43,21 @@ export default class ImageList extends Component {
   async componentDidMount() {
     this.setState(
       {
-        commentId: this.props.navigation.getParam("commentId", "")
+        commentId: this.props.navigation.getParam("commentId", ""),
+        articleId: this.props.navigation.getParam("articleId", ""),
+        screenName: this.props.navigation.getParam("screenName", "")
       },
       () => {
         this._getCommentImages();
       }
     );
   }
+
+  playImage = _filename => () => {
+    this.props.navigation.navigate("CheckImages", {
+      imageUri: "https://youthevoice.com/" + _filename
+    });
+  };
 
   renderItem = ({ item }) => {
     console.log("imagesss Item", item);
@@ -60,12 +69,16 @@ export default class ImageList extends Component {
     let newHeight = originalHeight * widthChange;
     return (
       <View key={item.name}>
-        <Text> </Text>
-        <Image
-          source={{ uri: "https://youthevoice.com/" + item.filename }}
-          style={{ width: newWidth, height: newHeight }}
-          PlaceholderContent={<ActivityIndicator />}
-        />
+        <TouchableOpacity
+          onPress={this.playImage(item.filename)}
+          style={{ paddingTop: 10 }}
+        >
+          <Image
+            source={{ uri: "https://youthevoice.com/" + item.filename }}
+            style={{ width: newWidth, height: newHeight }}
+            PlaceholderContent={<ActivityIndicator />}
+          />
+        </TouchableOpacity>
       </View>
     );
   };
@@ -75,13 +88,14 @@ export default class ImageList extends Component {
   separator = () => <View style={styles.separator} />;
 
   _getCommentImages = () => {
-    console.log("aricleIDDDD", this.state.articleId);
     this.setState({ loading: true });
     const { page } = this.state;
     axios
       .get("https://youthevoice.com/getcommentimages", {
         params: {
           commentId: this.state.commentId,
+          articleId: this.state.articleId,
+          screenName: this.state.screenName,
           page: page
         }
       })
@@ -144,21 +158,18 @@ export default class ImageList extends Component {
     return (
       <SafeAreaView style={styles.container}>
         <StatusBar barStyle="light-content" backgroundColor="#bf360c" />
-        <View style={styles.headerBar}>
-          <TouchableOpacity>
-            <View style={{ flexDirection: "row", alignItems: "center" }}>
-              <Icon name="ios-arrow-round-back" color="#fff" size={30} />
-              <Text style={styles.logo}>Back...</Text>
-            </View>
+        <View>
+          <TouchableOpacity
+            onPress={() => this.props.navigation.goBack()}
+            style={{ flexDirection: "row", alignItems: "center", zIndex: 1 }}
+          >
+            <Icon name="ios-arrow-round-back" color="green" size={30} />
+            <Text style={styles.logo}>Back...</Text>
           </TouchableOpacity>
-          <View>
-            <Text style={styles.h1w}>Voices</Text>
-          </View>
         </View>
         {this.state.renderI && (
           <ScrollView>
             <View style={{ borderTopLeftRadius: 7.5 }}>
-              <Text> ghfgfgfghfhgf</Text>
               <FlatList
                 keyExtractor={(item, index) => item.name}
                 data={this.state.data}
@@ -176,7 +187,7 @@ export default class ImageList extends Component {
     );
   }
 }
-/*
+
 const mapStateToProps = state => {
   return {
     isLoggedIn: state.isLoggedIn,
@@ -187,17 +198,11 @@ const mapStateToProps = state => {
   };
 };
 
-const mapDispathToProps = dispatch => {
-  return {
-    userLogout: () => dispatch(logout())
-  };
-};
-
 export default connect(
   mapStateToProps,
-  mapDispathToProps
-)(AllComments);
-*/
+  null
+)(ImageList);
+
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#e3f2fd" },
   question: {
@@ -281,7 +286,7 @@ const styles = StyleSheet.create({
   logo: {
     fontSize: 20,
     fontWeight: "bold",
-    color: "#fff",
+    color: "#000",
     paddingLeft: 5,
     letterSpacing: 2
   },

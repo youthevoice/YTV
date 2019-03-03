@@ -24,11 +24,24 @@ import { connect } from "react-redux";
 
 import { Divider } from "react-native-elements";
 
-class YtvVoice extends Component {
+class OnlyYtvVoice extends Component {
   constructor(props) {
     super(props);
 
     this.state = {};
+  }
+
+  componentDidMount() {
+    this.setState(
+      {
+        articleId: this.props.navigation.getParam("articleId", ""),
+        screenName: this.props.navigation.getParam("screenName", ""),
+        parentCommentId: this.props.navigation.getParam("parentCommentId", "")
+      },
+      () => {
+        console.log("I am in ONlyYTVVoice....", this.state);
+      }
+    );
   }
 
   onShare() {
@@ -90,8 +103,9 @@ class YtvVoice extends Component {
       });
     } else {
       this.props.navigation.navigate("VoiceImage", {
-        articleId: articleId,
-        screenName: screenName
+        articleId: this.state.articleId,
+        screenName: this.state.screenName,
+        parentCommentId: this.state.parentCommentId
       });
     }
   };
@@ -116,17 +130,16 @@ class YtvVoice extends Component {
       });
     } else {
       this.props.navigation.navigate("VoiceVideo", {
-        articleId: articleId,
-        screenName: screenName,
-        parentCommentId: "c0"
+        articleId: this.state.articleId,
+        screenName: this.state.screenName,
+        parentCommentId: this.state.parentCommentId
       });
     }
   };
 
   allComments = () => {
     this.props.navigation.navigate("AllComments", {
-      articleId: this.props.navigation.getParam("articleId", ""),
-      parentCommentId: "c0"
+      articleId: this.props.navigation.getParam("articleId", "")
     });
   };
 
@@ -161,33 +174,6 @@ class YtvVoice extends Component {
             source={require("./resources/ytvheader.png")}
           />
           <View style={styles.card}>
-            <View
-              style={{
-                flexDirection: "row",
-                justifyContent: "center",
-                padding: 10
-              }}
-            >
-              <TouchableOpacity
-                style={{ alignItems: "center" }}
-                onPress={this.allComments}
-              >
-                <View style={{ flexDirection: "row", alignItems: "center" }}>
-                  <Icon name="md-chatboxes" size={25} color="#bf360c" />
-                  <Text
-                    style={{
-                      padding: 10,
-                      color: "#01579b",
-                      fontSize: 20
-                      //  fontFamily: "Lobster-Regular"
-                    }}
-                  >
-                    View All Voices
-                  </Text>
-                </View>
-              </TouchableOpacity>
-            </View>
-
             <View
               style={{
                 paddingHorizontal: 10,
@@ -260,80 +246,6 @@ class YtvVoice extends Component {
                 </Text>
               </TouchableOpacity>
             </View>
-
-            <View
-              style={{
-                paddingHorizontal: 10,
-                paddingVertical: 10
-              }}
-            >
-              <Text
-                style={{
-                  fontSize: 20,
-                  //fontFamily: "Lobster-Regular",
-                  color: "#1b5e20"
-                }}
-              >
-                OR Add Voice on Social Media Apps
-              </Text>
-            </View>
-
-            <View
-              style={{
-                flexDirection: "row",
-                justifyContent: "space-between",
-                padding: 20
-              }}
-            >
-              <TouchableOpacity
-                style={styles.bottomBarItem}
-                onPress={this.openFUrl("403845640359795")}
-              >
-                <Fa5 name={"facebook"} size={40} color="#3b5998" />
-                <Text style={{ paddingVertical: 5 }}> facebook</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.bottomBarItem}
-                onPress={this.openUrl(
-                  "https://twitter.com/ew8dotcom/status/1084291751374962689"
-                )}
-              >
-                <Fa5 name={"twitter"} size={40} color="#38A1F3" />
-                <Text style={{ paddingVertical: 5 }}> twitter</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.bottomBarItem}
-                onPress={this.openUrl(
-                  "https://www.reddit.com/r/assholedesign/comments/a02ezp/meta_is_it_asshole_design_a_handy_flowchart/"
-                )}
-              >
-                <Fa5 name={"reddit"} size={40} color="#FF4500" />
-                <Text style={{ paddingVertical: 5 }}> reddit</Text>
-              </TouchableOpacity>
-            </View>
-            <View
-              style={{
-                flexDirection: "row",
-                justifyContent: "space-between",
-                padding: 20
-              }}
-            >
-              <TouchableOpacity
-                style={styles.bottomBarItem}
-                onPress={() => this.onShare1()}
-              >
-                <Fa5 name={"youtube"} size={40} color="#c4302b" />
-                <Text style={{ paddingVertical: 5 }}> youtube</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.bottomBarItem}>
-                <Fa5 name={"instagram"} size={40} color="#3f729b" />
-                <Text style={{ paddingVertical: 5 }}> instagram</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.bottomBarItem}>
-                <Fa5 name={"quora"} size={40} color="#a62100" />
-                <Text style={{ paddingVertical: 5 }}> quora</Text>
-              </TouchableOpacity>
-            </View>
           </View>
         </ScrollView>
       </SafeAreaView>
@@ -350,7 +262,7 @@ const mapStateToProps = state => {
 export default connect(
   mapStateToProps,
   null
-)(YtvVoice);
+)(OnlyYtvVoice);
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#000" },

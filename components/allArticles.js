@@ -432,7 +432,7 @@ class Articles extends React.Component {
         >
           <View style={{ flexDirection: "row", alignItems: "center" }}>
             <Icon name="md-chatboxes" size={30} color="#388e3c" />
-            <Text style={styles.share}>Add Your Voice</Text>
+            <Text style={styles.share}>Add-View Voice</Text>
           </View>
           <Text style={{ paddingVertical: 5 }}> {item.no_of_comments}</Text>
         </TouchableOpacity>

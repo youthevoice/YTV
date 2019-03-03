@@ -27,6 +27,8 @@ import CommentReplies from "./commentReplies";
 import ImageGrid from "./imageList";
 import PlaySound from "./playSound";
 import PlayVideo from "./playVideo";
+import OnlyYtvVoice from "./onlyytvVoice";
+import VoiceAnalytics from "./voiceAnalytics";
 
 const store = createStore(reducer, applyMiddleware(thunk));
 
@@ -94,6 +96,12 @@ const Articles = createStackNavigator(
     },
     PlayVideo: {
       screen: PlayVideo
+    },
+    OnlyYtvVoice: {
+      screen: OnlyYtvVoice
+    },
+    VoiceAnalytics: {
+      screen: VoiceAnalytics
     }
   },
   {
